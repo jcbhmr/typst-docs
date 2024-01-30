@@ -9,6 +9,8 @@ export default defineConfig({
 
   srcExclude: ["**/README.md", "**/CONTRIBUTING.md"],
 
+  base: process.env.BASE_PATH,
+
   locales: { root, fr, zh },
 
   // https://vitepress.dev/reference/default-theme-config
