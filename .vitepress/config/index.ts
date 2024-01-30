@@ -16,7 +16,9 @@ export default defineConfig({
 
     footer: {
       message: `⚠️ This is unofficial documentation. It may be out of date.`,
-      copyright: `Copyright &copy; 2024 <a href="https://typst.community/">Typst Community</a>`,
+      copyright: `\
+Released under the <a href="https://github.com/jcbhmr/typst-docs/blob/main/LICENSE">MIT license</a>.<br />
+Copyright &copy; 2024 <a href="https://typst.community/">Typst Community</a>`,
     },
   },
 });
