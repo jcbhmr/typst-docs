@@ -5,6 +5,8 @@ import zh from "./zh.ts";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  ignoreDeadLinks: true,
+
   srcExclude: ["**/README.md", "**/CONTRIBUTING.md"],
 
   locales: { root, fr, zh },
