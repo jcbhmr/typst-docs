@@ -1,10 +1,12 @@
-import { DefaultTheme, LocaleConfig, defineConfig } from "vitepress";
+import { defineConfig } from "vitepress";
 import root from "./root.ts";
 import fr from "./fr.ts";
 import zh from "./zh.ts";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  srcExclude: ["**/README.md", "**/CONTRIBUTING.md"],
+
   locales: { root, fr, zh },
 
   // https://vitepress.dev/reference/default-theme-config
