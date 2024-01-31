@@ -36,7 +36,7 @@ export default {
         collapsed: true,
         items: [
           {
-            text: "<small>LANGUE</small>",
+            text: "<small>LANGUAGE</small>",
             items: [
               { text: "语法", link: "/zh/reference/syntax" },
               { text: "样式", link: "/zh/reference/styling" },
@@ -44,10 +44,119 @@ export default {
             ],
           },
           {
-            text: "<small>BIBLIOTHÈQUE</small>",
+            text: "<small>LIBRARY</small>",
             items: [
-              { text: "Fondations", link: "https://typst.app/docs/reference/" },
-              { text: "Modèle", link: "https://typst.app/docs/reference/" },
+              {
+                text: "基础",
+                link: "https://typst.app/docs/reference/foundations/",
+                items: [
+                  {
+                    text: "Arguments",
+                    link: "https://typst.app/docs/reference/foundations/arguments/",
+                  },
+                  {
+                    text: "Array",
+                    link: "https://typst.app/docs/reference/foundations/array/",
+                  },
+                  {
+                    text: "Assert",
+                    link: "https://typst.app/docs/reference/foundations/assert/",
+                  },
+                  {
+                    text: "Boolean",
+                    link: "https://typst.app/docs/reference/foundations/boolean/",
+                  },
+                  {
+                    text: "Bytes",
+                    link: "https://typst.app/docs/reference/foundations/bytes/",
+                  },
+                  {
+                    text: "Calculation",
+                    link: "https://typst.app/docs/reference/foundations/calculation/",
+                  },
+                  {
+                    text: "Content",
+                    link: "https://typst.app/docs/reference/foundations/content/",
+                  },
+                  {
+                    text: "Datetime",
+                    link: "https://typst.app/docs/reference/foundations/datetime/",
+                  },
+                  {
+                    text: "Dictionary",
+                    link: "https://typst.app/docs/reference/foundations/dictionary/",
+                  },
+                  {
+                    text: "Duration",
+                    link: "https://typst.app/docs/reference/foundations/duration/",
+                  },
+                  {
+                    text: "Evaluate",
+                    link: "https://typst.app/docs/reference/foundations/evaluate/",
+                  },
+                  {
+                    text: "Float",
+                    link: "https://typst.app/docs/reference/foundations/float/",
+                  },
+                  {
+                    text: "Function",
+                    link: "https://typst.app/docs/reference/foundations/function/",
+                  },
+                  {
+                    text: "Integer",
+                    link: "https://typst.app/docs/reference/foundations/integer/",
+                  },
+                  {
+                    text: "Label",
+                    link: "https://typst.app/docs/reference/foundations/label/",
+                  },
+                  {
+                    text: "Module",
+                    link: "https://typst.app/docs/reference/foundations/module/",
+                  },
+                  {
+                    text: "Panic",
+                    link: "https://typst.app/docs/reference/foundations/panic/",
+                  },
+                  {
+                    text: "Plugin",
+                    link: "https://typst.app/docs/reference/foundations/plugin/",
+                  },
+                  {
+                    text: "Regex",
+                    link: "https://typst.app/docs/reference/foundations/regex/",
+                  },
+                  {
+                    text: "Representation",
+                    link: "https://typst.app/docs/reference/foundations/representation/",
+                  },
+                  {
+                    text: "Selector",
+                    link: "https://typst.app/docs/reference/foundations/selector/",
+                  },
+                  {
+                    text: "String",
+                    link: "https://typst.app/docs/reference/foundations/string/",
+                  },
+                  {
+                    text: "Style",
+                    link: "https://typst.app/docs/reference/foundations/style/",
+                  },
+                  {
+                    text: "System",
+                    link: "https://typst.app/docs/reference/foundations/system/",
+                  },
+                  {
+                    text: "Type",
+                    link: "https://typst.app/docs/reference/foundations/type/",
+                  },
+                  {
+                    text: "Version",
+                    link: "https://typst.app/docs/reference/foundations/version/",
+                  },
+                ],
+              },
+              { text: "模型", link: "/zh/reference/model/", items: [] },
               { text: "Texte", link: "https://typst.app/docs/reference/" },
               {
                 text: "Mathématiques",

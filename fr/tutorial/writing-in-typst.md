@@ -12,7 +12,7 @@ behavior of these natural structures.
 
 ```
 
-![Aperçu](https://typst.app/assets/docs/hDtb7jRd-u1GxrXbK8IzfAAAAAAAAAAA.png)
+![Aperçu](/assets/hDtb7jRd-u1GxrXbK8IzfAAAAAAAAAAA.png)
 
 C'était facile! Pour ajouter un nouveau paragraphe, ajoutez simplement une ligne vide entre deux lignes de texte. Si ce paragraphe nécessite un sous-titre, produisez-le en tapant `==`à la place de `=`. Le nombre de `=`caractères détermine le niveau d'imbrication du titre.
 
@@ -25,7 +25,7 @@ Nous souhaitons maintenant énumérer quelques-unes des circonstances qui influe
 
 ```
 
-![Aperçu](https://typst.app/assets/docs/UCD504wZ0vAGWF4mLNbJtgAAAAAAAAAA.png)
+![Aperçu](/assets/UCD504wZ0vAGWF4mLNbJtgAAAAAAAAAA.png)
 
 Si nous voulions ajouter une liste à puces, nous utiliserions le `-`caractère au lieu du `+`caractère. Nous pouvons également imbriquer des listes : par exemple, nous pouvons ajouter une sous-liste au premier élément de la liste ci-dessus en la mettant en retrait.
 
@@ -38,13 +38,13 @@ Si nous voulions ajouter une liste à puces, nous utiliserions le `-`caractère
 
 ```
 
-![Aperçu](https://typst.app/assets/docs/MxatP-QgeeFcBXvpqnabgQAAAAAAAAAA.png)
+![Aperçu](/assets/MxatP-QgeeFcBXvpqnabgQAAAAAAAAAA.png)
 
 ## Ajouter une figure
 
 Vous pensez que votre rapport gagnerait à être chiffré. Ajoutons-en un. Typst prend en charge les images aux formats PNG, JPEG, GIF et SVG. Pour ajouter un fichier image à votre projet, ouvrez d'abord le *panneau de fichiers* en cliquant sur l'icône en forme de boîte dans la barre latérale gauche. Ici, vous pouvez voir une liste de tous les fichiers de votre projet. Actuellement, il n'y en a qu'un : le fichier Typst principal dans lequel vous écrivez. Pour télécharger un autre fichier, cliquez sur le bouton avec la flèche dans le coin supérieur droit. Cela ouvre la boîte de dialogue de téléchargement, dans laquelle vous pouvez sélectionner les fichiers à télécharger depuis votre ordinateur. Sélectionnez un fichier image pour votre rapport.
 
-![Boîte de dialogue de téléchargement](https://typst.app/assets/docs/1-writing-upload.png)
+![Boîte de dialogue de téléchargement](/assets/1-writing-upload.png)
 
 Nous avons déjà vu que des symboles spécifiques (appelés *markup* ) ont une signification spécifique dans Typst. Nous pouvons utiliser `=`, `-`, `+`et `_`pour créer respectivement des titres, des listes et du texte souligné. Cependant, avoir un symbole spécial pour tout ce que nous voulons insérer dans notre document deviendrait bientôt énigmatique et compliqué. Pour cette raison, Typst réserve les symboles de balisage uniquement pour les éléments les plus courants. Tout le reste est inséré avec *des fonctions.* Pour que notre image apparaisse sur la page, nous utilisons [`image`](https://typst-app.translate.goog/docs/reference/visualize/image/?_x_tr_sl=auto&_x_tr_tl=fr&_x_tr_hl=en&_x_tr_pto=wapp)la fonction de Typst.
 
@@ -53,7 +53,7 @@ Nous avons déjà vu que des symboles spécifiques (appelés *markup* ) ont un
 
 ```
 
-![Aperçu](https://typst.app/assets/docs/GSAtkgPQ2v4iy41ntRez0QAAAAAAAAAA.png)
+![Aperçu](/assets/GSAtkgPQ2v4iy41ntRez0QAAAAAAAAAA.png)
 
 En général, une fonction produit une sortie pour un ensemble d' *arguments* . Lorsque vous *appelez* une fonction dans le balisage, vous fournissez les arguments et Typst insère le résultat (la *valeur de retour* de la fonction ) dans le document. Dans notre cas, la `image`fonction prend un argument : le chemin d'accès au fichier image. Pour appeler une fonction en balisage, il faut d'abord taper le `#`caractère, immédiatement suivi du nom de la fonction. Ensuite, nous mettons les arguments entre parenthèses. Typst reconnaît de nombreux types de données différents dans les listes d'arguments. Notre chemin de fichier est une courte [chaîne de texte](https://typst-app.translate.goog/docs/reference/foundations/str/?_x_tr_sl=auto&_x_tr_tl=fr&_x_tr_hl=en&_x_tr_pto=wapp) , nous devons donc le mettre entre guillemets doubles.
 
@@ -64,7 +64,7 @@ L'image insérée utilise toute la largeur de la page. Pour changer cela, transm
 
 ```
 
-![Aperçu](https://typst.app/assets/docs/1wmZ01GbbMLBTgr9nEi8sgAAAAAAAAAA.png)
+![Aperçu](/assets/1wmZ01GbbMLBTgr9nEi8sgAAAAAAAAAA.png)
 
 L' `width`argument est une [longueur relative](https://typst-app.translate.goog/docs/reference/layout/relative/?_x_tr_sl=auto&_x_tr_tl=fr&_x_tr_hl=en&_x_tr_pto=wapp) . Dans notre cas, nous avons spécifié un pourcentage, déterminant que l'image doit occuper `70%`la largeur de la page. Nous aurions également pu spécifier une valeur absolue comme `1cm`ou `0.7in`.
 
@@ -85,7 +85,7 @@ La légende est constituée d'un balisage arbitraire. Pour donner un balisage à
 
 ```
 
-![Aperçu](https://typst.app/assets/docs/6aMP2cZhNxpMw7GX0knZTQAAAAAAAAAA.png)
+![Aperçu](/assets/6aMP2cZhNxpMw7GX0knZTQAAAAAAAAAA.png)
 
 Vous continuez à rédiger votre rapport et souhaitez maintenant référencer la figure. Pour ce faire, attachez d'abord une étiquette à la figure. Une étiquette identifie de manière unique un élément de votre document. Ajoutez-en un après la figure en mettant un nom entre crochets. Vous pouvez ensuite référencer la figure dans votre texte en écrivant un `@`symbole suivi de ce nom. Les titres et les équations peuvent également être étiquetés pour les rendre référençables.
 
@@ -104,7 +104,7 @@ we don't take action soon!
 
 ```
 
-![Aperçu](https://typst.app/assets/docs/_QG3npgVtVe3KLiCE0hqaAAAAAAAAAAA.png)
+![Aperçu](/assets/_QG3npgVtVe3KLiCE0hqaAAAAAAAAAAA.png)
 
 Jusqu'à présent, nous avons transmis des blocs de contenu (balisage entre crochets) et des chaînes (texte entre guillemets) à nos fonctions. Les deux semblent contenir du texte. Quelle est la différence?
 
@@ -129,7 +129,7 @@ established in @glacier-melt.
 
 ```
 
-![Aperçu](https://typst.app/assets/docs/xklGbWqUimu8pV0wFDkkMQAAAAAAAAAA.png)
+![Aperçu](/assets/xklGbWqUimu8pV0wFDkkMQAAAAAAAAAA.png)
 
 ## Mathématiques
 
@@ -141,7 +141,7 @@ defines the glacial flow rate.
 
 ```
 
-![Aperçu](https://typst.app/assets/docs/xLq1JvBV0YeUBQSmAJsaagAAAAAAAAAA.png)
+![Aperçu](/assets/xLq1JvBV0YeUBQSmAJsaagAAAAAAAAAA.png)
 
 L'équation est composée en ligne, sur la même ligne que le texte environnant. Si vous souhaitez plutôt l'avoir sur sa propre ligne, vous devez insérer un seul espace au début et à la fin :
 
@@ -153,7 +153,7 @@ $ Q = rho A v + C $
 
 ```
 
-![Aperçu](https://typst.app/assets/docs/PeZaoVpKqICLGYC48JkubAAAAAAAAAAA.png)
+![Aperçu](/assets/PeZaoVpKqICLGYC48JkubAAAAAAAAAAA.png)
 
 Nous pouvons voir que Typst affichait les lettres simples `Q`, `A`, `v`et `C`telles quelles, tout en les traduisant `rho`en lettre grecque. Le mode mathématique affichera toujours des lettres simples textuellement. Toutefois, plusieurs lettres sont interprétées comme des symboles, des variables ou des noms de fonctions. Pour impliquer une multiplication entre des lettres simples, placez des espaces entre elles.
 
@@ -167,7 +167,7 @@ $ Q = rho A v + "time offset" $
 
 ```
 
-![Aperçu](https://typst.app/assets/docs/pKzq4sozT6I2eUFIrpNDzQAAAAAAAAAA.png)
+![Aperçu](/assets/pKzq4sozT6I2eUFIrpNDzQAAAAAAAAAA.png)
 
 Vous aurez également besoin d'une formule de somme dans votre article. Nous pouvons utiliser le `sum`symbole puis spécifier la plage de la sommation en indice et en exposant :
 
@@ -179,7 +179,7 @@ $ 7.32 beta +
 
 ```
 
-![Aperçu](https://typst.app/assets/docs/oE9DDk_onbKEOhH9DWkFLQAAAAAAAAAA.png)
+![Aperçu](/assets/oE9DDk_onbKEOhH9DWkFLQAAAAAAAAAA.png)
 
 Pour ajouter un indice à un symbole ou à une variable, saisissez un `_`caractère puis l'indice. De même, utilisez le `^`caractère comme exposant. Si votre indice ou exposant se compose de plusieurs éléments, vous devez les mettre entre parenthèses rondes.
 
@@ -194,7 +194,7 @@ $ 7.32 beta +
 
 ```
 
-![Aperçu](https://typst.app/assets/docs/pMSz49BGbSGdisHfvAechgAAAAAAAAAA.png)
+![Aperçu](/assets/pMSz49BGbSGdisHfvAechgAAAAAAAAAA.png)
 
 Toutes les constructions mathématiques n'ont pas une syntaxe particulière. Au lieu de cela, nous utilisons des fonctions, tout comme la `image`fonction que nous avons vue précédemment. Par exemple, pour insérer un vecteur colonne, on peut utiliser la [`vec`](https://typst-app.translate.goog/docs/reference/math/vec/?_x_tr_sl=auto&_x_tr_tl=fr&_x_tr_hl=en&_x_tr_pto=wapp)fonction. En mode mathématique, les appels de fonction n'ont pas besoin de commencer par le `#`caractère.
 
@@ -203,7 +203,7 @@ $ v := vec(x_1, x_2, x_3) $
 
 ```
 
-![Aperçu](https://typst.app/assets/docs/vBVlHY0No4dDf6HDafev_AAAAAAAAAAA.png)
+![Aperçu](/assets/vBVlHY0No4dDf6HDafev_AAAAAAAAAAA.png)
 
 Certaines fonctions ne sont disponibles qu'en mode mathématique. Par exemple, la [`cal`](https://typst-app.translate.goog/docs/reference/math/variants/?_x_tr_sl=auto&_x_tr_tl=fr&_x_tr_hl=en&_x_tr_pto=wapp#functions-cal)fonction est utilisée pour composer des lettres calligraphiques couramment utilisées pour les ensembles. La [section mathématique de la référence](https://typst-app.translate.goog/docs/reference/math/?_x_tr_sl=auto&_x_tr_tl=fr&_x_tr_hl=en&_x_tr_pto=wapp) fournit une liste complète de toutes les fonctions rendues disponibles par le mode mathématique.
 
@@ -213,7 +213,7 @@ Encore une chose : de nombreux symboles, comme la flèche, ont de nombreuses var
 $ a arrow.squiggly b $
 ```
 
-![Aperçu](https://typst.app/assets/docs/fYpgGuOFYIhkxGJrfjHBIQAAAAAAAAAA.png)
+![Aperçu](/assets/fYpgGuOFYIhkxGJrfjHBIQAAAAAAAAAA.png)
 
 Cette notation est également disponible en mode balisage, mais le nom du symbole doit être précédé de `#sym.`là. Consultez la [section Symboles](https://typst-app.translate.goog/docs/reference/symbols/sym/?_x_tr_sl=auto&_x_tr_tl=fr&_x_tr_hl=en&_x_tr_pto=wapp) pour une liste de tous les symboles disponibles.
 

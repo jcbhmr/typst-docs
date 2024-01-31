@@ -2,6 +2,7 @@
   "type": "module",
   "devDependencies": {
     "@types/node": "^20.11.10",
+    "glob": "^10.3.10",
     "prettier": "^3.2.4",
     "typescript": "^5.3.3",
     "vitepress": "^1.0.0-rc.40",
