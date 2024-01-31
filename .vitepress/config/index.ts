@@ -20,8 +20,10 @@ export default defineConfig({
     socialLinks: [
       {
         icon: {
-          svg: '<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Typst</title><image width="24" height="24" href="https://typst.app/assets/favicon-32x32.png" /></svg>'
-        }, link: "https://typst.app/docs" },
+          svg: '<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Typst</title><image width="24" height="24" href="https://typst.app/assets/favicon-32x32.png" /></svg>',
+        },
+        link: "https://typst.app/docs",
+      },
       { icon: "github", link: "https://github.com/jcbhmr/typst-docs" },
     ],
 

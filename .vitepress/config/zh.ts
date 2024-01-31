@@ -4,43 +4,43 @@ export default {
   label: "简体中文",
   lang: "zh",
 
-  title: "",
+  title: "打字员文档",
   description: "",
 
   themeConfig: {
     sidebar: [
-      { text: "Aperçu", link: "/zh/" },
+      { text: "概览", link: "/zh/" },
       {
-        text: "Didacticiel",
+        text: "教程",
         link: "/zh/tutorial/",
         collapsed: true,
         items: [
-          { text: "Écrire en Typst", link: "/zh/tutorial/writing-in-typst" },
+          { text: "使用 Typst 写作", link: "/zh/tutorial/writing-in-typst" },
           {
-            text: "Mise en page",
-            link: "https://typst.app/docs/tutorial/formatting",
+            text: "格式",
+            link: "/zh/tutorial/formatting",
           },
           {
-            text: "Style avancé",
-            link: "https://typst.app/docs/tutorial/advanced-styling",
+            text: "高级样式",
+            link: "/zh/tutorial/advanced-styling",
           },
           {
-            text: "Créer un modèle",
-            link: "https://typst.app/docs/tutorial/making-a-template",
+            text: "制作模板",
+            link: "/zh/tutorial/making-a-template",
           },
         ],
       },
       {
-        text: "Référence",
-        link: "https://typst.app/docs/reference/",
+        text: "参考",
+        link: "/zh/reference/",
         collapsed: true,
         items: [
           {
             text: "<small>LANGUE</small>",
             items: [
-              { text: "Syntaxe", link: "https://typst.app/docs/reference/" },
-              { text: "Coiffant", link: "https://typst.app/docs/reference/" },
-              { text: "Script", link: "https://typst.app/docs/reference/" },
+              { text: "语法", link: "/zh/reference/syntax" },
+              { text: "样式", link: "/zh/reference/styling" },
+              { text: "脚本", link: "/zh/reference/scripting" },
             ],
           },
           {

@@ -65,7 +65,7 @@ behavior of these natural structures.
 
 ![Upload dialog](https://typst-doc-cn.github.io/assets/docs/1-writing-upload.png)
 
-我们之前已经看到，特定的符号（称为 *标记* ）在 Typst 中具有特定的含义。 我们可以使用 `=`、`-`、`+` 和 `_` 分别创建标题、列表和强调文本。 但是，若是为我们想要插入到文档中的所有内容都设置一个特殊符号，很快语法就会变得怪异且笨拙。 为此，Typst 只为最常见的内容保留标记符号。 其他所有内容都将通过 *函数* 来插入。 为了使图像显示在页面上，我们使用 Typst 的 [`image`](https://typst-doc-cn.github.io/docs/reference/visualize/image/) 函数。
+我们之前已经看到，特定的符号（称为 *标记* ）在 Typst 中具有特定的含义。 我们可以使用 `=`、`-`、`+` 和 `_` 分别创建标题、列表和强调文本。 但是，若是为我们想要插入到文档中的所有内容都设置一个特殊符号，很快语法就会变得怪异且笨拙。 为此，Typst 只为最常见的内容保留标记符号。 其他所有内容都将通过 *函数* 来插入。 为了使图像显示在页面上，我们使用 Typst 的 [`image`](/reference/visualize/image/) 函数。
 
 ```
 #image("glacier.jpg")
@@ -74,7 +74,7 @@ behavior of these natural structures.
 
 ![Preview](https://typst-doc-cn.github.io/assets/docs/e65b151dfe412be3d4134a72cf3ae846.png)
 
-通常，函数会为一组 *参数* 生成一些输出。 当您在标记模式中 *调用* 函数时，读取到您输入的参数后，Typst 会将结果（函数的 *返回值* ）插入到文档中。 在我们的例子中， `image` 函数接受一个参数：图像文件的路径。 要在标记模式中调用函数，我们首先需要键入 `#` 字符，并且紧跟函数的名称。 然后，我们将参数括在括号中。 Typst 可识别参数列表中的许多不同数据类型， 我们的文件路径是一个较短的 [文本字符串](https://typst-doc-cn.github.io/docs/reference/foundations/str/)，所以我们需要用双引号括起来。
+通常，函数会为一组 *参数* 生成一些输出。 当您在标记模式中 *调用* 函数时，读取到您输入的参数后，Typst 会将结果（函数的 *返回值* ）插入到文档中。 在我们的例子中， `image` 函数接受一个参数：图像文件的路径。 要在标记模式中调用函数，我们首先需要键入 `#` 字符，并且紧跟函数的名称。 然后，我们将参数括在括号中。 Typst 可识别参数列表中的许多不同数据类型， 我们的文件路径是一个较短的 [文本字符串](/reference/foundations/str/)，所以我们需要用双引号括起来。
 
 插入的图像默认宽度为页面宽度。要更改宽度，请将 `width` 参数传递给 `image` 函数。 这是一个 *命名* 参数，因此被指定为 `name: value` 对。 如果有多个参数，则逗号分隔它们，所以我们首先需要在路径参数后面加上一个逗号。
 
@@ -85,9 +85,9 @@ behavior of these natural structures.
 
 ![Preview](https://typst-doc-cn.github.io/assets/docs/f39689e4b1e73d17796a38d46aba16e4.png)
 
-`width` 参数是一个 [相对长度](https://typst-doc-cn.github.io/docs/reference/layout/relative/)。 在我们的例子中，我们指定了一个百分比，确定图像应占据页面宽度的 `70%`。 我们也可以指定一个绝对值，如 `1cm` 或 `0.7in`。
+`width` 参数是一个 [相对长度](/reference/layout/relative/)。 在我们的例子中，我们指定了一个百分比，确定图像应占据页面宽度的 `70%`。 我们也可以指定一个绝对值，如 `1cm` 或 `0.7in`。
 
-就像文本一样，默认情况下，图像现在在页面左侧对齐，并且它也缺少说明（caption）。 让我们使用 [figure](https://typst-doc-cn.github.io/docs/reference/model/figure/) 函数来解决这个问题。 该函数将图表的内容作为位置参数，将可选的说明（caption）作为命名参数。
+就像文本一样，默认情况下，图像现在在页面左侧对齐，并且它也缺少说明（caption）。 让我们使用 [figure](/reference/model/figure/) 函数来解决这个问题。 该函数将图表的内容作为位置参数，将可选的说明（caption）作为命名参数。
 
 在 `figure` 函数的参数列表中，Typst 已经处于代码模式。 这意味着，您现在可以在 `image` 函数调用的前面删除井号。 井号仅在标记模式中需要（以消除函数调用中的文本歧义）。
 
@@ -133,11 +133,11 @@ we don't take action soon!
 
 ## 添加参考文献
 
-在撰写报告时，您需要引用资料来支持您的一些论证。 您可以使用 [`bibliography`](https://typst-doc-cn.github.io/docs/reference/model/bibliography/) 函数向文档添加参考文献。 此函数需要参考文献文件的路径。
+在撰写报告时，您需要引用资料来支持您的一些论证。 您可以使用 [`bibliography`](/reference/model/bibliography/) 函数向文档添加参考文献。 此函数需要参考文献文件的路径。
 
 Typst 的原生参考文献格式是 [Hayagriva](https://github.com/typst/hayagriva/blob/main/docs/file-format.md)， 但为了兼容性，您也可以使用 BibLaTeX 文件。 由于您的同学已经完成了文献调查并向您发送了 `.bib` 文件，因此您将直接使用该文件。 请在文件面板中上传文件，以在 Typst App 中访问它。
 
-一旦文档引入了参考文献，您就可以引用它了。 引用参考文献的语法与对标签的引用相同。一旦您第一次引用一个来源，它就会出现在您文档的参考文献部分。 Typst 支持不同的引用和参考文献样式。有关的详细信息，请阅读 [参考](https://typst-doc-cn.github.io/docs/reference/model/bibliography/#parameters-style)。
+一旦文档引入了参考文献，您就可以引用它了。 引用参考文献的语法与对标签的引用相同。一旦您第一次引用一个来源，它就会出现在您文档的参考文献部分。 Typst 支持不同的引用和参考文献样式。有关的详细信息，请阅读 [参考](/reference/model/bibliography/#parameters-style)。
 
 ```
 = Methods
@@ -215,7 +215,7 @@ $ 7.32 beta +
 
 ![Preview](https://typst-doc-cn.github.io/assets/docs/b48131cd0c9e13a45c0571b2f32da5e0.png)
 
-并非所有数学结构都有特殊的语法。 相反，我们使用函数，就像我们之前看到的 `image` 函数一样。 例如，要插入列向量，我们可以使用 [`vec`](https://typst-doc-cn.github.io/docs/reference/math/vec/) 函数。 在数学模式下，函数调用不需要以 `#` 字符开头。
+并非所有数学结构都有特殊的语法。 相反，我们使用函数，就像我们之前看到的 `image` 函数一样。 例如，要插入列向量，我们可以使用 [`vec`](/reference/math/vec/) 函数。 在数学模式下，函数调用不需要以 `#` 字符开头。
 
 ```
 $ v := vec(x_1, x_2, x_3) $
@@ -224,20 +224,21 @@ $ v := vec(x_1, x_2, x_3) $
 
 ![Preview](https://typst-doc-cn.github.io/assets/docs/948a4816ac383d40afa23ac83335bcd6.png)
 
-某些函数仅在数学模式下可用。 例如，[`cal`](https://typst-doc-cn.github.io/docs/reference/math/variants/#functions-cal) 函数用于排版通常用于集合论的书法字母。 [参考的数学部分](https://typst-doc-cn.github.io/docs/reference/math/) 提供了数学模式提供的所有函数的完整列表。
+某些函数仅在数学模式下可用。 例如，[`cal`](/reference/math/variants/#functions-cal) 函数用于排版通常用于集合论的书法字母。 [参考的数学部分](/reference/math/) 提供了数学模式提供的所有函数的完整列表。
 
 还有一件事：许多符号，如箭头，有很多变体。 您可以通过在符号名称后附加点和修饰符名称来选择这些变体：
 
-```typ
+```
 $ a arrow.squiggly b $
+
 ```
 
 ![Preview](https://typst-doc-cn.github.io/assets/docs/b4cc131d22826c75b24f0c145830ad06.png)
 
-这种记号在标记模式下也可以使用，但符号名称前面必须带有 `#sym`。 有关所有可用符号的列表，请参阅 [符号部分](https://typst-doc-cn.github.io/docs/reference/symbols/sym/)。
+这种记号在标记模式下也可以使用，但符号名称前面必须带有 `#sym`。 有关所有可用符号的列表，请参阅 [符号部分](/reference/symbols/sym/)。
 
 ## 回顾
 
-您现在已经了解了如何在 Typst 中编写基本的文档。 您学习了如何强调文本、编写列表、插入图像、对齐内容和排版数学表达式。 您还了解了 Typst 的函数。 Typst 允许您将更多种类的内容插入到文档中，例如 [表格](https://typst-doc-cn.github.io/docs/reference/model/table/)、[形状](https://typst-doc-cn.github.io/docs/reference/visualize/) 和 [代码块](https://typst-doc-cn.github.io/docs/reference/text/raw/)。 您可以仔细阅读 [参考](https://typst-doc-cn.github.io/docs/reference/) 以了解有关这些函数和其他函数的更多信息。
+您现在已经了解了如何在 Typst 中编写基本的文档。 您学习了如何强调文本、编写列表、插入图像、对齐内容和排版数学表达式。 您还了解了 Typst 的函数。 Typst 允许您将更多种类的内容插入到文档中，例如 [表格](/reference/model/table/)、[形状](/reference/visualize/) 和 [代码块](/reference/text/raw/)。 您可以仔细阅读 [参考](/reference/) 以了解有关这些函数和其他函数的更多信息。
 
 目前，您已完成报告的编写。 您已经通过单击右上角的下载按钮保存了 PDF。 但是，您认为报告看起来不应该那么朴素。 在下一节中，我们将学习如何自定义文档的外观。

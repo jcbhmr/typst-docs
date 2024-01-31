@@ -12,6 +12,5 @@ export default {
   title: "Typst Documentation",
   description: "📗 Typst documentation in more languages",
 
-  themeConfig: {
-  },
+  themeConfig: {},
 } satisfies LocaleConfig<DefaultTheme.Config>["root"];
