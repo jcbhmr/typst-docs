@@ -217,9 +217,11 @@ async function build_2() {
       );
 
       const newAssets = `${process.env.BASE_PATH || "/"}${lang}/assets/`;
+      const newStyles = `${process.env.BASE_PATH || "/"}${lang}/styles/`;
       const newDocs = `${process.env.BASE_PATH || "/"}${lang}/docs/`;
       const tweakedHTML = renderedHTML
         .replaceAll(/(?<=\W)\/assets\//g, newAssets)
+        .replaceAll(/(?<=\W)\/styles\//g, newStyles)
         .replaceAll(/(?<=\W)\/docs\//g, newDocs);
       console.debug(`Tweaked to '${newAssets}' and '${newDocs}'`);
 
