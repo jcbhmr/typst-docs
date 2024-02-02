@@ -288,6 +288,9 @@ async function apply() {
 async function setup() {
   console.debug("Installing the nightly Rust toolchain");
   await $({ stdio: "inherit" })`rustup toolchain add nightly`;
+
+  console.debug("You already have Deno installed!");
+  console.debug("(You're running this script with it.)");
 }
 
 const tasks = { build, diff, apply, setup, build_1, build_2 };
