@@ -1,0 +1,6 @@
+[submodule "typst-zh"]
+	path = typst-zh
+	url = https://github.com/typst/typst.git
+[submodule "typst-es"]
+	path = typst-es
+	url = https://github.com/typst/typst.git
