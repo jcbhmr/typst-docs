@@ -10,8 +10,12 @@ import {
   copyFile,
   chmod,
   mkdir,
-  cp,
+  // https://github.com/denoland/deno/pull/21745#issuecomment-1924139252
+  // cp,
+  readdir,
 } from "node:fs/promises";
+import fsPromises from "node:fs/promises";
+const { cp } = fsPromises;
 import { resolve, join, dirname, basename } from "node:path";
 import JSONParse from "npm:json-parse-even-better-errors";
 import assert from "node:assert/strict";
@@ -21,23 +25,22 @@ import { renderFile } from "npm:ejs";
 
 const langs = ["zh", "es"];
 
-async function build() {
-  await rm("_site", { recursive: true, force: true });
-  console.debug("Removed _site");
+async function build_1() {
+  // Don't touch the '_site/' folder! That's done in step #2.
   await rm("out", { recursive: true, force: true });
   console.debug("Removed out");
 
   for (const lang of langs) {
-    console.group(`Building ${lang}`);
+    console.group(`STEP 1: Building ${lang}`);
 
     const langRoot = resolve(`typst-${lang}`);
-    console.debug(`Root for ${lang} is ${langRoot}`);
     const cargoScriptFile = resolve("out", `build-${lang}.rs`);
-    console.debug(`Will create cargo script at ${cargoScriptFile}`);
     const outPagesFile = resolve("out", `pages-${lang}.json`);
+    const tempOutDir = resolve("out", `out-${lang}`);
+    console.debug(`Root for ${lang} is ${langRoot}`);
+    console.debug(`Will create cargo script at ${cargoScriptFile}`);
     console.debug(`Will create pages data at ${outPagesFile}`);
-    const langOutDir = resolve("_site", lang);
-    console.debug(`Will write output to ${langOutDir}`);
+    console.debug(`Output in ${tempOutDir} (processed in step 2)`);
 
     // prettier-ignore
     // deno-fmt-ignore
@@ -136,19 +139,59 @@ fn main() {
       stdio: "inherit",
       env: {
         OUT_PAGES_FILE: resolve(outPagesFile),
-        OUT_DIR: langOutDir,
+        OUT_DIR: tempOutDir,
       },
     })`${cargoScriptFile}`;
+    console.debug(`Ran cargo script! See ${outPagesFile} for JSON data.`);
 
-    await mkdir(join(langOutDir, "assets", "docs"), { recursive: true });
+    console.groupEnd();
+  }
+
+  console.info(`Completed build step #1 for ${langs.length} languages`);
+}
+
+async function build_2() {
+  await rm("_site", { recursive: true, force: true });
+  console.debug("Removed _site");
+
+  for (const lang of langs) {
+    console.group(`Building ${lang} STEP 2`);
+
+    const langRoot = resolve(`typst-${lang}`);
+    const langOutDir = resolve("_site", lang);
+    const tempOutDir = resolve("out", `out-${lang}`);
+    const outPagesFile = resolve("out", `pages-${lang}.json`);
+    console.debug(`Root for ${lang} is ${langRoot}`);
+    console.debug(`Output in ${langOutDir}`);
+    console.debug(`Using stuff from step 1 in ${tempOutDir}`);
+    console.debug(`Using pages data from ${outPagesFile} step 1`);
+
+    const langOutAssetsDocs = join(langOutDir, "assets", "docs");
+    await mkdir(langOutAssetsDocs, { recursive: true });
+    console.debug(`Created ${langOutAssetsDocs}`);
+
+    const langRootAssetsFiles = join(langRoot, "assets", "files");
+    for (const file of await readdir(langRootAssetsFiles)) {
+      await cp(join(langRootAssetsFiles, file), join(langOutAssetsDocs, file), {
+        recursive: true,
+      });
+      console.debug(`Copied ${file} to ${langOutAssetsDocs}`);
+    }
+
+    const tempOutAssetsDocs = join(tempOutDir, "assets", "docs");
+    for (const file of await readdir(tempOutAssetsDocs)) {
+      await cp(join(tempOutAssetsDocs, file), join(langOutAssetsDocs, file), {
+        recursive: true,
+      });
+      console.debug(`Copied ${file} to ${langOutAssetsDocs}`);
+    }
+
     await cp(
-      join(langRoot, "assets", "files"),
-      join(langOutDir, "assets", "docs"),
+      join(langRoot, "assets", "fonts"),
+      join(langOutDir, "assets", "fonts"),
       { recursive: true }
     );
-    console.debug(
-      `Copied ${lang} assets to ${join(langOutDir, "assets", "docs")}`
-    );
+    console.debug(`Copied fonts to ${langOutDir}`);
 
     const pages = JSONParse(await readFile(outPagesFile, "utf8"));
     console.debug(`Got pages data for ${lang}`);
@@ -167,11 +210,18 @@ fn main() {
 
       const layoutFile = resolve("_layouts", `${page.body.kind}.ejs`);
       console.debug(`Rendering ${htmlFile} using ${layoutFile}`);
-      const renderedHTML = await renderFile(layoutFile, page, { async: true });
+      const renderedHTML = await renderFile(
+        layoutFile,
+        { page },
+        { async: true }
+      );
 
       const newAssets = `${process.env.BASE_PATH || "/"}${lang}/assets/`;
-      const tweakedHTML = renderedHTML.replaceAll("/assets/", newAssets);
-      console.debug(`Tweaked to '${newAssets}'`);
+      const newDocs = `${process.env.BASE_PATH || "/"}${lang}/docs/`;
+      const tweakedHTML = renderedHTML
+        .replaceAll(/(?<=\W)\/assets\//g, newAssets)
+        .replaceAll(/(?<=\W)\/docs\//g, newDocs);
+      console.debug(`Tweaked to '${newAssets}' and '${newDocs}'`);
 
       await mkdir(dirname(htmlFile), { recursive: true });
       await writeFile(htmlFile, tweakedHTML);
@@ -181,11 +231,17 @@ fn main() {
     console.groupEnd();
   }
 
-  await mkdir("_site", { recursive: true });
-  await copyFile("index.html", "_site/index.html");
-  console.debug("Copied index.html to _site");
+  for (const file of await readdir("public")) {
+    await cp(join("public", file), join("_site", file), { recursive: true });
+  }
+  console.debug("Copied public to _site directly");
 
   console.log(`Done building ${langs.length} languages`);
+}
+
+async function build() {
+  await build_1();
+  await build_2();
 }
 
 async function diff() {
@@ -231,7 +287,7 @@ async function setup() {
   await $({ stdio: "inherit" })`rustup toolchain add nightly`;
 }
 
-const tasks = { build, diff, apply, setup };
+const tasks = { build, diff, apply, setup, build_1, build_2 };
 
 const taskName = process.argv[2];
 assert(taskName, "No task name provided");
