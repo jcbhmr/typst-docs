@@ -251,15 +251,10 @@ async function diff() {
     const langRoot = resolve(`typst-${lang}`);
     console.debug(`Root for ${lang} is ${langRoot}`);
 
-    const patchText = await (async () => {
-      const { stdout } = await $`git -C ${langRoot} diff`;
-      return stdout;
-    })();
-    console.debug(`Got diff for ${lang} (${patchText.length} bytes)`);
-
     const patchFile = resolve("patches", `typst-${lang}.patch`);
+    const { stdout } = await $`git -C ${langRoot} diff`;
     await mkdir(dirname(patchFile), { recursive: true });
-    await writeFile(patchFile, patchText);
+    await writeFile(patchFile, stdout.replaceAll("\r\n", "\n"));
     console.debug(`Wrote patch to ${patchFile}`);
 
     console.groupEnd();
@@ -275,7 +270,15 @@ async function apply() {
 
     const patchFile = resolve("patches", `typst-${lang}.patch`);
     console.debug(`Will apply patch from ${patchFile}`);
-    await $`git -C ${langRoot} apply ${patchFile}`;
+
+    console.debug(`Resetting any local changes`);
+    await $({ stdio: "inherit" })`git -C ${langRoot} reset --hard`;
+    await $({ stdio: "inherit" })`git -C ${langRoot} clean -fd`;
+
+    console.debug(`Attempting to apply patch`);
+    await $({
+      stdio: "inherit",
+    })`git -C ${langRoot} apply ${patchFile} --ignore-space-change --ignore-whitespace --reject --whitespace=fix --allow-empty`;
     console.debug(`Applied patch to ${langRoot}`);
 
     console.groupEnd();
