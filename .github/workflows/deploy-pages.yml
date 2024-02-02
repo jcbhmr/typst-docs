@@ -24,6 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: rustup toolchain add nightly
       - uses: denoland/setup-deno@v1
       - id: configure-pages
         uses: actions/configure-pages@v4
