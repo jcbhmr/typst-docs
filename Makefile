@@ -9,7 +9,7 @@ all: $(LANGS)
 $(LANGS):
 	rm -rf _site/$@
 	mkdir -p _site/$@
-	DOC_LANG=$@ cargo run
+	DOC_LANG=$@ DOCS_DIR="$$PWD/$@" IMAGE_PREFIX="/assets/" cargo run --manifest-path main1/Cargo.toml
 	DOC_LANG=$@ deno run -A main2.ts
 
 setup:

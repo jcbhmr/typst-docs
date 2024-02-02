@@ -8,9 +8,6 @@ dataurl = "0.1.2"
 html-escape = "0.2.13"
 lazy_static = "1.4.0"
 md5 = "0.7.0"
-typst = { git = "https://github.com/typst/typst.git", version = "0.10.0" }
-typst-docs = { git = "https://github.com/typst/typst.git", version = "0.10.0" }
-typst-render = { git = "https://github.com/typst/typst.git", version = "0.10.0" }
-
-[patch.'https://github.com/typst/typst']
-typst-docs = { path = "typst" }
+typst = { git = "https://github.com/jcbhmr/typst.git", version = "0.10.0", branch = "patch-1" }
+typst-docs = { git = "https://github.com/jcbhmr/typst.git", version = "0.10.0", branch = "patch-1" }
+typst-render = { git = "https://github.com/jcbhmr/typst.git", version = "0.10.0", branch = "patch-1" }

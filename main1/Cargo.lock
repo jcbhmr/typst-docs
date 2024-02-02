@@ -1781,7 +1781,7 @@ checksum = "6af6ae20167a9ece4bcb41af5b80f8a1f1df981f6391189ce00fd257af04126a"
 [[package]]
 name = "typst"
 version = "0.10.0"
-source = "git+https://github.com/typst/typst.git#464a15bdca3ea3a54adc6410ba679597d7ca421b"
+source = "git+https://github.com/jcbhmr/typst.git?branch=patch-1#ccff7b4ba42e5e49abf0161e75d114cebc0dd457"
 dependencies = [
  "az",
  "bitflags 2.4.2",
@@ -1836,7 +1836,7 @@ dependencies = [
 [[package]]
 name = "typst-docs"
 version = "0.10.0"
-source = "git+https://github.com/typst/typst.git#464a15bdca3ea3a54adc6410ba679597d7ca421b"
+source = "git+https://github.com/jcbhmr/typst.git?branch=patch-1#ccff7b4ba42e5e49abf0161e75d114cebc0dd457"
 dependencies = [
  "comemo",
  "ecow",
@@ -1857,7 +1857,7 @@ dependencies = [
 [[package]]
 name = "typst-macros"
 version = "0.10.0"
-source = "git+https://github.com/typst/typst.git#464a15bdca3ea3a54adc6410ba679597d7ca421b"
+source = "git+https://github.com/jcbhmr/typst.git?branch=patch-1#ccff7b4ba42e5e49abf0161e75d114cebc0dd457"
 dependencies = [
  "heck",
  "proc-macro2",
@@ -1868,7 +1868,7 @@ dependencies = [
 [[package]]
 name = "typst-render"
 version = "0.10.0"
-source = "git+https://github.com/typst/typst.git#464a15bdca3ea3a54adc6410ba679597d7ca421b"
+source = "git+https://github.com/jcbhmr/typst.git?branch=patch-1#ccff7b4ba42e5e49abf0161e75d114cebc0dd457"
 dependencies = [
  "bytemuck",
  "comemo",
@@ -1888,7 +1888,7 @@ dependencies = [
 [[package]]
 name = "typst-syntax"
 version = "0.10.0"
-source = "git+https://github.com/typst/typst.git#464a15bdca3ea3a54adc6410ba679597d7ca421b"
+source = "git+https://github.com/jcbhmr/typst.git?branch=patch-1#ccff7b4ba42e5e49abf0161e75d114cebc0dd457"
 dependencies = [
  "comemo",
  "ecow",
@@ -1904,7 +1904,7 @@ dependencies = [
 [[package]]
 name = "typst-timing"
 version = "0.10.0"
-source = "git+https://github.com/typst/typst.git#464a15bdca3ea3a54adc6410ba679597d7ca421b"
+source = "git+https://github.com/jcbhmr/typst.git?branch=patch-1#ccff7b4ba42e5e49abf0161e75d114cebc0dd457"
 dependencies = [
  "parking_lot",
  "serde",

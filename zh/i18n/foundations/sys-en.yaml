@@ -1,0 +1,21 @@
+route: /docs/reference/foundations/sys
+title: 系统
+description: sys 函数族的文档.
+part: null
+outline:
+- id: summary
+  name: Summary
+  children: []
+- id: functions
+  name: Functions
+  children: []
+body:
+  kind: group
+  content:
+    name: sys
+    title: 系统
+    details: |-
+      <p>用于系统交互的模块。</p>
+      <p>目前，此模块定义了一个项目：<code>sys.version</code> 常量（类型为 <a href="/docs/reference/foundations/version/"><code>version</code></a>），指定当前活动的 Typst 编译器版本。</p>
+    functions: []
+children: []

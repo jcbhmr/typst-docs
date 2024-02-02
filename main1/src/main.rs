@@ -44,7 +44,7 @@ impl typst_docs::Resolver for MyResolver {
         }
     }
     fn image(&self, filename: &str, data: &[u8]) -> String {
-        format!("{}/{}", *IMAGE_PREFIX, filename)
+        format!("{}{}", *IMAGE_PREFIX, filename)
     }
     fn link(&self, link: &str) -> Option<String> {
         None
