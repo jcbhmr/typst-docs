@@ -1,0 +1,6 @@
+[submodule "crates/typst-docs-zh/typst"]
+	path = crates/typst-docs-zh/typst
+	url = https://github.com/typst/typst.git
+[submodule "crates/typst-docs-es/typst"]
+	path = crates/typst-docs-es/typst
+	url = https://github.com/typst/typst.git
