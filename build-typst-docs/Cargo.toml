@@ -1,0 +1,17 @@
+[package]
+name = "build-typst-docs"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+askama = "0.12.1"
+html-escape = "0.2.13"
+serde_json = "1.0.113"
+serde_yaml = "0.9.31"
+
+# 
+typst = { git = "https://github.com/typst/typst.git", version = "0.10.0" }
+typst-docs = { git = "https://github.com/typst/typst.git", version = "0.10.0" }
+typst-render = { git = "https://github.com/typst/typst.git", version = "0.10.0" }
