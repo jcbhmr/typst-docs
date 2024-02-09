@@ -26,12 +26,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - run: rustup toolchain add nightly
-      - uses: denoland/setup-deno@v1
       - id: configure-pages
         uses: actions/configure-pages@v4
-      - run: ./scripts.ts apply
-      - run: ./scripts.ts build
+      - run: make build
         env:
           BASE_PATH: ${{ steps.configure-pages.outputs.base_path }}/
       - uses: actions/upload-pages-artifact@v3
