@@ -1,0 +1,10 @@
+[package]
+name = "build-typst-docs-runner"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+typst-docs = { git = "https://github.com/typst/typst.git", tag = "v0.10.0", version = "0.10.0" }
+typst = { git = "https://github.com/typst/typst.git", tag = "v0.10.0", version = "0.10.0" }
