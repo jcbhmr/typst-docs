@@ -1,10 +1,11 @@
-use serde::{Deserialize, Deserializer};
-use serde_with::DeserializeAs;
+use crate::macros::deserialize_as_impl;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde_with::{DeserializeAs, SerializeAs};
 
 pub(crate) type StaticStr = &'static str;
+pub(crate) type StaticStrSlice = &'static [&'static str];
 
 pub(crate) struct StaticStrDef;
-
 impl StaticStrDef {
     pub(crate) fn deserialize<'de, D>(deserializer: D) -> Result<&'static str, D::Error>
     where
@@ -14,19 +15,9 @@ impl StaticStrDef {
         Ok(Box::leak(string.into_boxed_str()))
     }
 }
-
-impl<'de> DeserializeAs<'de, &'static str> for StaticStrDef {
-    fn deserialize_as<D>(deserializer: D) -> Result<&'static str, D::Error>
-        where
-            D: Deserializer<'de> {
-        StaticStrDef::deserialize(deserializer)
-    }
-}
-
-pub(crate) type StaticStrSlice = &'static [&'static str];
+deserialize_as_impl!(StaticStr, StaticStrDef);
 
 pub(crate) struct StaticStrSliceDef;
-
 impl StaticStrSliceDef {
     pub(crate) fn deserialize<'de, D>(deserializer: D) -> Result<&'static [&'static str], D::Error>
     where
@@ -40,11 +31,4 @@ impl StaticStrSliceDef {
         Ok(Box::leak(static_strs.into_boxed_slice()))
     }
 }
-
-impl<'de> DeserializeAs<'de, &'static [&'static str]> for StaticStrSliceDef {
-    fn deserialize_as<D>(deserializer: D) -> Result<&'static [&'static str], D::Error>
-        where
-            D: Deserializer<'de> {
-        StaticStrSliceDef::deserialize(deserializer)
-    }
-}
+deserialize_as_impl!(StaticStrSlice, StaticStrSliceDef);
