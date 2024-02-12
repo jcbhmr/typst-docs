@@ -4,8 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-serde = { version = "1.0.196", features = ["derive"] }
-serde_with = "3.6.1"
+askama = "0.12.1"
+html-escape = "0.2.13"
+lol_html = "1.2.0"
+md5 = "0.7.0"
 typst = { git = "https://github.com/typst/typst.git", tag = "v0.10.0", version = "0.10.0" }
 typst-docs = { git = "https://github.com/typst/typst.git", tag = "v0.10.0", version = "0.10.0" }
 typst-render = { git = "https://github.com/typst/typst.git", tag = "v0.10.0", version = "0.10.0" }
