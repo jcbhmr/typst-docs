@@ -1,4 +1,3 @@
 [workspace]
 members = ["crates/*"]
-default-members = ["crates/build-typst-docs"]
 resolver = "2"

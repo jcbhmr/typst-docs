@@ -1,33 +1,22 @@
-mod static_str_serde;
+mod static_str;
+mod html;
+
+pub use html::*;
 
 use typst_docs::{PageModel, OutlineItem, BodyModel, Html, CategoryModel, FuncModel, GroupModel, TypeModel, SymbolsModel, CategoryItem, ShorthandsModel, StrParam, ParamModel, SymbolModel, };
 use serde::{Deserialize, Deserializer};
 use ecow::EcoString;
-use static_str_serde::{StaticStrSlice,StaticStr,deserialize_static_str,deserialize_static_str_option,deserialize_static_str_slice,deserialize_static_str_vec};
+use static_str::{StaticStrSlice,StaticStr, StaticStrDef, StaticStrSliceDef};
+use serde_with::serde_as;
 
-fn deserialize_html<'de, D>(deserializer: D) -> Result<Html, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let string: String = Deserialize::deserialize(deserializer)?;
-    Ok(Html::new(string))
-}
-
-fn deserialize_html_option<'de, D>(deserializer: D) -> Result<Option<Html>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let res: Option<String> = Deserialize::deserialize(deserializer)?;
-    Ok(res.map(Html::new))
-}
-
+#[serde_as]
 #[derive(Deserialize)]
 #[serde(remote = "PageModel")]
 pub struct PageModelDef {
     route: EcoString,
     title: EcoString,
     description: EcoString,
-    #[serde(deserialize_with = "deserialize_static_str_option")]
+    #[serde_as(as = "Option<StaticStrDef>")]
     part: Option<StaticStr>,
     #[serde(deserialize_with = "OutlineItemDef::deserialize_vec")]
     outline: Vec<OutlineItem>,
@@ -91,7 +80,7 @@ impl OutlineItemDef {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase", tag = "kind", content = "content", remote = "BodyModel")]
 pub enum BodyModelDef {
-    #[serde(deserialize_with = "deserialize_html")]
+    #[serde(with = "HtmlDef")]
     Html(Html),
     #[serde(with = "CategoryModelDef")]
     Category(CategoryModel),
@@ -103,7 +92,7 @@ pub enum BodyModelDef {
     Type(TypeModel),
     #[serde(with = "SymbolsModelDef")]
     Symbols(SymbolsModel),
-    #[serde(deserialize_with = "deserialize_html")]
+    #[serde(with = "HtmlDef")]
     Packages(Html),
 }
 
@@ -135,7 +124,7 @@ pub struct CategoryModelDef {
     name: StaticStr,
     #[serde(deserialize_with = "deserialize_static_str")]
     title: StaticStr,
-    #[serde(deserialize_with = "deserialize_html")]
+    #[serde(with = "HtmlDef")]
     details: Html,
     #[serde(deserialize_with = "CategoryItemDef::deserialize_vec")]
     items: Vec<CategoryItem>,
@@ -194,6 +183,7 @@ impl CategoryItemDef {
     }
 }
 
+#[serde_as]
 #[derive(Deserialize)]
 #[serde(remote = "FuncModel")]
 pub struct FuncModelDef {
@@ -206,9 +196,9 @@ pub struct FuncModelDef {
     #[serde(deserialize_with = "deserialize_static_str")]
     oneliner: StaticStr,
     element: bool,
-    #[serde(deserialize_with = "deserialize_html")]
+    #[serde(with = "HtmlDef")]
     details: Html,
-    #[serde(deserialize_with = "deserialize_html_option")]
+    #[serde_as(as = "Option<HtmlDef>")]
     example: Option<Html>,
     #[serde(rename = "self")]
     self_: bool,
@@ -241,20 +231,21 @@ impl FuncModelDef {
     }
 }
 
+#[serde_as]
 #[derive(Deserialize)]
 #[serde(remote = "ParamModel")]
 pub struct ParamModelDef {
     #[serde(deserialize_with = "deserialize_static_str")]
     name: StaticStr,
-    #[serde(deserialize_with = "deserialize_html")]
+    #[serde(with = "HtmlDef")]
     details: Html,
-    #[serde(deserialize_with = "deserialize_html_option")]
+    #[serde_as(as = "Option<HtmlDef>")]
     example: Option<Html>,
     #[serde(deserialize_with = "deserialize_static_str_vec")]
     types: Vec<StaticStr>,
     #[serde(deserialize_with = "StrParamDef::deserialize_vec")]
     strings: Vec<StrParam>,
-    #[serde(deserialize_with = "deserialize_html_option")]
+    #[serde_as(as = "Option<HtmlDef>")]
     default: Option<Html>,
     positional: bool,
     named: bool,
@@ -288,7 +279,7 @@ impl ParamModelDef {
 #[serde(remote = "StrParam")]
 pub struct StrParamDef {
     string: EcoString,
-    #[serde(deserialize_with = "deserialize_html")]
+    #[serde(with = "HtmlDef")]
     details: Html,
 }
 
@@ -318,7 +309,7 @@ impl StrParamDef {
 pub struct GroupModelDef {
     name: EcoString,
     title: EcoString,
-    #[serde(deserialize_with = "deserialize_html")]
+    #[serde(with = "HtmlDef")]
     details: Html,
     #[serde(deserialize_with = "FuncModelDef::deserialize_vec")]
     functions: Vec<FuncModel>,
@@ -356,7 +347,7 @@ pub struct TypeModelDef {
     keywords: StaticStrSlice,
     #[serde(deserialize_with = "deserialize_static_str")]
     oneliner: StaticStr,
-    #[serde(deserialize_with = "deserialize_html")]
+    #[serde(with = "HtmlDef")]
     details: Html,
     #[serde(deserialize_with = "FuncModelDef::deserialize_option")]
     constructor: Option<FuncModel>,
@@ -390,7 +381,7 @@ impl TypeModelDef {
 pub struct SymbolsModelDef {
     name: EcoString,
     title: EcoString,
-    #[serde(deserialize_with = "deserialize_html")]
+    #[serde(with = "HtmlDef")]
     details: Html,
     #[serde(deserialize_with = "SymbolModelDef::deserialize_vec")]
     list: Vec<SymbolModel>,

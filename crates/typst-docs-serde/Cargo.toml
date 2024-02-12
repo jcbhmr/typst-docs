@@ -8,4 +8,5 @@ edition = "2021"
 [dependencies]
 ecow = { version = "0.2.0", features = ["serde"] }
 serde = { version = "1.0.196", features = ["derive"] }
+serde_with = "3.6.1"
 typst-docs = { git = "https://github.com/typst/typst.git", version = "0.10.0" }
