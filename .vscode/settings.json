@@ -1,3 +1,0 @@
-{
-    "rust-analyzer.linkedProjects": ["./build-typst-docs/Cargo.toml"]
-}

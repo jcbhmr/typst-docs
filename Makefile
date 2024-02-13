@@ -7,7 +7,7 @@ build:
 	# rsync -av public/ _site/
 	cp -f public/index.html _site
 
-build-lang:
+:
 	cd build-typst-docs \
 	&& OUT_DIR='../_site/$(LANG_CODE)' \
 		BASE_URL="$$BASE_URL/$(LANG_CODE)" \
