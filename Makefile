@@ -4,6 +4,8 @@ build:
 	for lang in $(SRC_LANGS); do \
 		$(MAKE) build-lang "LANG_CODE=$$lang"; \
 	done
+	# rsync -av public/ _site/
+	cp -f public/index.html _site
 
 build-lang:
 	cd build-typst-docs \

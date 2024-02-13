@@ -178,6 +178,7 @@ name = "build-typst-docs"
 version = "0.1.0"
 dependencies = [
  "askama",
+ "ecow",
  "html-escape",
  "lol_html",
  "md5",
