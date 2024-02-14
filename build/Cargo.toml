@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 askama = "0.12.1"
+clap = { version = "4.5.0", features = ["derive"] }
 ecow = "0.2.0"
 html-escape = "0.2.13"
 lol_html = "1.2.0"
@@ -12,3 +13,4 @@ md5 = "0.7.0"
 typst = { git = "https://github.com/typst/typst.git", tag = "v0.10.0", version = "0.10.0" }
 typst-docs = { git = "https://github.com/typst/typst.git", tag = "v0.10.0", version = "0.10.0" }
 typst-render = { git = "https://github.com/typst/typst.git", tag = "v0.10.0", version = "0.10.0" }
+walkdir = "2.4.0"

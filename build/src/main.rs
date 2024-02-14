@@ -1,171 +1,127 @@
 use askama::Template;
-use lol_html::{element, rewrite_str, RewriteStrSettings};
-use std::cell::Ref;
-use std::env::var;
-use std::rc::Rc;
+use clap::Parser;
 use std::{
     error::Error,
-    fs::{create_dir_all, write},
-    path::Path,
+    fs::{create_dir_all, remove_dir_all, rename, write},
+    panic::catch_unwind,
+    path::{Path, PathBuf},
 };
-use typst::{layout::Frame, model::Document, visualize::Color};
-use typst_docs::{provide, Commit, FuncModel, Html, PageModel, Resolver, BodyModel, OutlineItem, SymbolsModel, TypeModel, Author, CategoryModel, GroupModel, CategoryItem,ParamModel,ShorthandsModel,StrParam,SymbolModel};
+use typst::{layout::Frame, visualize::Color};
+use typst_docs::{provide, Html, PageModel, Resolver};
 use typst_render::render;
-use ecow::EcoString;
+use walkdir::WalkDir;
 
-#[derive(Debug)]
-struct MyResolver {
-    out_dir: String,
+struct MyResolver<'a> {
+    out_dir: &'a Path,
 }
-impl Resolver for MyResolver {
-    fn commits(&self, from: &str, to: &str) -> Vec<Commit> {
+impl<'a> Resolver for MyResolver<'a> {
+    fn commits(&self, from: &str, to: &str) -> Vec<typst_docs::Commit> {
         eprintln!("commits({from}, {to})");
         vec![]
     }
-
-    fn example(&self, hash: u128, source: Option<Html>, frames: &[Frame]) -> Html {
+    fn example(
+        &self,
+        hash: u128,
+        source: Option<typst_docs::Html>,
+        document: &[Frame],
+    ) -> typst_docs::Html {
         eprintln!(
-            "example(0x{hash:x}, {} chars, [Frame; {}])",
-            source.as_ref().map(|html| html.as_str().len()).unwrap_or(0),
-            frames.len()
+            "example(0x{hash:x}, {:?} chars, a document)",
+            source.as_ref().map(|s| s.as_str().len())
         );
-        let frame = frames.first().expect("No first frame in example");
-        let pixmap = render(frame, 2.0, Color::WHITE);
-        let hash = md5::compute(pixmap.data());
-        let filename = format!("{hash:x}.png");
-        let path = Path::new(&self.out_dir).join("assets/docs").join(&filename);
-        create_dir_all(path.parent().expect("No parent")).expect("Failed to create dir");
-        pixmap.save_png(path).expect("Failed to save pixmap");
 
-        if let Some(source) = source {
-            Html::new(format!(
-                r#"
-                <div class="previewed-code">
-                    <pre>{}</pre>
-                    <div class="preview">
-                        <img src="{}" alt="Preview" width="480" height="190" />
-                    </div>
-                </div>
-            "#,
-                html_escape::encode_text(source.as_str()),
-                format!("/assets/docs/{filename}")
-            ))
-        } else {
-            Html::new("".to_string())
-        }
+        Html::new("".to_string())
     }
-
     fn image(&self, filename: &str, data: &[u8]) -> String {
-        eprintln!("image({:?}, {} bytes)", filename, data.len());
+        eprintln!("image({filename}, {} bytes)", data.len());
         format!("/assets/docs/{filename}")
     }
-
     fn link(&self, link: &str) -> Option<String> {
-        eprintln!("link({:?})", link);
-        // Some(format!("/docs/{link}"))
+        eprintln!("link({link})");
         None
     }
 }
 
 #[derive(Template)]
 #[template(path = "html.html")]
-struct MyHtmlTemplate {
-    pub route: EcoString,
-    pub title: EcoString,
-    pub description: EcoString,
-    pub part: Option<&'static str>,
-    pub outline: Vec<OutlineItem>,
-    pub body: BodyModel,
+struct HtmlTemplate<'a> {
+    page: &'a PageModel,
+    pages: &'a [&'a PageModel],
 }
 
 #[derive(Template)]
 #[template(path = "func.html")]
-struct MyFuncTemplate {}
+struct FuncTemplate;
 
-fn process_page(page: PageModel, out_dir: &str, base_url: &str) -> Result<(), Box<dyn Error>> {
-    eprintln!("process_page({:?})", page.route);
-
-    let route = if page.route.starts_with("/docs/") {
-        &page.route["/docs".len()..]
-    } else {
-        &page.route
-    };
-    let route2 = if route.ends_with("/") {
-        format!("{}/index.html", &page.route)
-    } else {
-        page.route.to_string()
-    };
-    let path =
-        Path::new(&out_dir).join(route2.strip_prefix("/").expect("No prefix"));
-
-    let html = MyHtmlTemplate {
-        route: page.route,
-        title: page.title,
-        description: page.description,
-        part: page.part,
-        outline: page.outline,
-        body: page.body,
-    }.render()?;
-
-    let html = rewrite_str(
-        &html,
-        RewriteStrSettings {
-            element_content_handlers: vec![
-                element!("[href]", |el| {
-                    let href = el.get_attribute("href").unwrap();
-                    if href.starts_with("/docs/") {
-                        el.set_attribute(
-                            "href",
-                            &format!("{}{}", base_url, &href["/docs/".len()..]),
-                        )?;
-                    } else if href.starts_with("/") {
-                        el.set_attribute(
-                            "href",
-                            &format!("{}{}", base_url, &href[1..]),
-                        )?;
-                    }
-                    Ok(())
-                }),
-                element!("[src]", |el| {
-                    let src = el.get_attribute("src").unwrap();
-                    if src.starts_with("/") {
-                        el.set_attribute(
-                            "src",
-                            &format!("{}{}", base_url, &src[1..]),
-                        )?;
-                    }
-                    Ok(())
-                }),
-            ],
-            ..Default::default()
-        },
-    )?;
-
-    create_dir_all(path.parent().expect("No parent")).expect("Failed to create dir");
-    write(&path, html)?;
-
-    for child in page.children {
-        process_page(child, out_dir, base_url)?;
+fn pages_flat<'a>(pages: &'a [&'a PageModel]) -> Vec<&'a PageModel> {
+    fn pages_flat_helper<'a>(page: &'a PageModel, pages: &mut Vec<&'a PageModel>) {
+        pages.push(page);
+        pages.extend(page.children.iter());
     }
+    let mut all_pages: Vec<&'a PageModel> = Vec::new();
+    for page in pages {
+        pages_flat_helper(page, &mut all_pages);
+    }
+    all_pages
+}
 
-    Ok(())
+/// Simple program to greet a person
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    /// Where to put the final site files
+    #[arg(short, long, default_value = "_site")]
+    out_dir: PathBuf,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let out_dir = var("OUT_DIR").unwrap_or_else(|_| "_site".to_string());
-    let base_url = var("BASE_URL").unwrap_or_else(|_| "/".to_string());
-    let base_url = if base_url.ends_with("/") {
-        base_url
-    } else {
-        format!("{}/", base_url)
-    };
+    let args = Args::parse();
 
-    let pages = provide(&MyResolver {
-        out_dir: out_dir.clone(),
+    let own_pages = provide(&MyResolver {
+        out_dir: args.out_dir.as_path(),
     });
-    for page in pages {
-        process_page(page, &out_dir, &base_url)?;
+    let pages: Vec<_> = own_pages.iter().collect();
+    let all_pages = pages_flat(pages.as_slice());
+
+    for page in all_pages {
+        let path = args.out_dir.clone();
+        let mut route = page.route.to_string();
+        if route.ends_with("/") {
+            route.push_str("index.html");
+        }
+        if route.starts_with("/") {
+            let _ = route.remove(0);
+        }
+        let path = path.join(route);
+
+        let html = HtmlTemplate {
+            page,
+            pages: pages.as_slice(),
+        }
+        .render()?;
+        create_dir_all(path.parent().ok_or("no parent")?)?;
+        write(path, html)?;
     }
+
+    for entry in WalkDir::new(args.out_dir.join("docs"))
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .filter(|e| e.file_type().is_file())
+    {
+        let path = entry.path();
+        let relative_path = path.strip_prefix(args.out_dir.as_path())?;
+        let relative_path = relative_path.strip_prefix(Path::new("docs"))?;
+        let new_path = args.out_dir.join(relative_path);
+        create_dir_all(new_path.parent().ok_or("no parent")?)?;
+        rename(path, &new_path)?;
+    }
+    remove_dir_all(args.out_dir.join("docs"))?;
+
+    for entry in WalkDir::new(args.out_dir.as_path())
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .filter(|e| e.file_name().to_string_lossy().ends_with(".html"))
+    {}
 
     Ok(())
 }
