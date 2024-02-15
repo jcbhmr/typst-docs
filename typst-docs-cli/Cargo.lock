@@ -222,23 +222,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "build-typst-docs"
-version = "0.1.0"
-dependencies = [
- "askama",
- "clap",
- "ecow",
- "html-escape",
- "include_dir",
- "lol_html",
- "md5",
- "typst",
- "typst-docs",
- "typst-render",
- "walkdir",
-]
-
-[[package]]
 name = "bytemuck"
 version = "1.14.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2240,6 +2223,23 @@ dependencies = [
  "unicode-segmentation",
  "usvg",
  "wasmi",
+]
+
+[[package]]
+name = "typst-docs"
+version = "0.1.0"
+dependencies = [
+ "askama",
+ "clap",
+ "ecow",
+ "html-escape",
+ "include_dir",
+ "lol_html",
+ "md5",
+ "typst",
+ "typst-docs 0.10.0",
+ "typst-render",
+ "walkdir",
 ]
 
 [[package]]

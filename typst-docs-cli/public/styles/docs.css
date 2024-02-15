@@ -749,7 +749,7 @@ a.pill {
 .subgridded li:before,
 .type-args li:before {
     -webkit-padding-end: .52em;
-    content: "â€“";
+    content: "–";
     padding-inline-end: .52em
 }
 
@@ -764,7 +764,7 @@ a.pill {
 }
 
 main>ul>li::marker {
-    content: "â€“   "
+    content: "–   "
 }
 
 @supports (grid-template-columns:subgrid) {
@@ -857,7 +857,7 @@ main>ul>li::marker {
     .subgridded li:before,
     .type-args li:before {
         -webkit-padding-end: 12px;
-        content: "â€“";
+        content: "–";
         padding-inline-end: 12px
     }
 
