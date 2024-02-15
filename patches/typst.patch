@@ -1,0 +1,14 @@
+diff --git a/crates/typst-docs/src/main.rs b/crates/typst-docs/src/main.rs
+new file mode 100644
+index 00000000..f73c2379
+--- /dev/null
++++ b/crates/typst-docs/src/main.rs
+@@ -0,0 +1,7 @@
++use std::fs::create_dir_all;
++
++fn main() -> Result<(), Box<dyn std::error::Error>> {
++    println!("Hello world!");
++
++    Ok(())
++}
+\ No newline at end of file
