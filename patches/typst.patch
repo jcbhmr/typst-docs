@@ -1,14 +1,5750 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index 0099a699..89acf2f4 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -107,6 +107,50 @@ version = "0.7.4"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "96d30a06541fbafbc7f82ed10c06164cfbd2c401138f6addd8404629c4b16711"
+ 
++[[package]]
++name = "askama"
++version = "0.12.1"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "b79091df18a97caea757e28cd2d5fda49c6cd4bd01ddffd7ff01ace0c0ad2c28"
++dependencies = [
++ "askama_derive",
++ "askama_escape",
++ "humansize",
++ "num-traits",
++ "percent-encoding",
++]
++
++[[package]]
++name = "askama_derive"
++version = "0.12.5"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "19fe8d6cb13c4714962c072ea496f3392015f0989b1a2847bb4b2d9effd71d83"
++dependencies = [
++ "askama_parser",
++ "basic-toml",
++ "mime",
++ "mime_guess",
++ "proc-macro2",
++ "quote",
++ "serde",
++ "syn",
++]
++
++[[package]]
++name = "askama_escape"
++version = "0.10.3"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "619743e34b5ba4e9703bba34deac3427c72507c7159f5fd030aea8cac0cfe341"
++
++[[package]]
++name = "askama_parser"
++version = "0.2.1"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "acb1161c6b64d1c3d83108213c2a2533a342ac225aabd0bda218278c2ddb00c0"
++dependencies = [
++ "nom",
++]
++
+ [[package]]
+ name = "autocfg"
+ version = "1.1.0"
+@@ -125,6 +169,15 @@ version = "0.21.5"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "35636a1494ede3b646cc98f74f8e62c773a38a659ebc777a2cf26b9b74171df9"
+ 
++[[package]]
++name = "basic-toml"
++version = "0.1.7"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "2f2139706359229bfa8f19142ac1155b4b80beafb7a60471ac5dd109d4a19778"
++dependencies = [
++ "serde",
++]
++
+ [[package]]
+ name = "biblatex"
+ version = "0.9.1"
+@@ -827,6 +880,15 @@ version = "0.4.1"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "95505c38b4572b2d910cecb0281560f54b440a19336cbbcb27bf6ce6adc6f5a8"
+ 
++[[package]]
++name = "humansize"
++version = "2.1.3"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "6cb51c9a029ddc91b07a787f1d86b53ccfa49b0e86688c946ebe8d3555685dd7"
++dependencies = [
++ "libm",
++]
++
+ [[package]]
+ name = "hypher"
+ version = "0.1.4"
+@@ -1362,6 +1424,28 @@ dependencies = [
+  "autocfg",
+ ]
+ 
++[[package]]
++name = "mime"
++version = "0.3.17"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "6877bb514081ee2a7ff5ef9de3281f14a4dd4bceac4c09388074a6b5df8a139a"
++
++[[package]]
++name = "mime_guess"
++version = "2.0.4"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "4192263c238a5f0d0c6bfd21f336a313a4ce1c450542449ca191bb657b4642ef"
++dependencies = [
++ "mime",
++ "unicase",
++]
++
++[[package]]
++name = "minimal-lexical"
++version = "0.2.1"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
++
+ [[package]]
+ name = "miniz_oxide"
+ version = "0.7.1"
+@@ -1419,6 +1503,16 @@ dependencies = [
+  "libc",
+ ]
+ 
++[[package]]
++name = "nom"
++version = "7.1.3"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "d273983c5a657a70a3e8f2a01329822f3b8c8172b73826411a55751e404a0a4a"
++dependencies = [
++ "memchr",
++ "minimal-lexical",
++]
++
+ [[package]]
+ name = "notify"
+ version = "6.1.1"
+@@ -2653,6 +2747,8 @@ dependencies = [
+ name = "typst-docs"
+ version = "0.10.0"
+ dependencies = [
++ "askama",
++ "clap",
+  "comemo",
+  "ecow",
+  "heck",
+diff --git a/Cargo.toml b/Cargo.toml
+index 5624eba8..86509345 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -26,6 +26,7 @@ typst-render = { path = "crates/typst-render" }
+ typst-svg = { path = "crates/typst-svg" }
+ typst-syntax = { path = "crates/typst-syntax" }
+ typst-timing = { path = "crates/typst-timing" }
++askama = "0.12.1"
+ az = "1.2"
+ base64 = "0.21.2"
+ bitflags = { version = "2", features = ["serde"] }
+diff --git a/crates/typst-docs/Cargo.toml b/crates/typst-docs/Cargo.toml
+index 7b444b9b..6a22aaab 100644
+--- a/crates/typst-docs/Cargo.toml
++++ b/crates/typst-docs/Cargo.toml
+@@ -25,6 +25,8 @@ typed-arena = { workspace = true }
+ unicode_names2 = { workspace = true }
+ unscanny = { workspace = true }
+ yaml-front-matter = { workspace = true }
++clap = { workspace = true }
++askama = { workspace = true }
+ 
+ [lints]
+ workspace = true
+diff --git a/crates/typst-docs/public/assets/16-arrow-right.svg b/crates/typst-docs/public/assets/16-arrow-right.svg
+new file mode 100644
+index 00000000..3bb61f73
+--- /dev/null
++++ b/crates/typst-docs/public/assets/16-arrow-right.svg
+@@ -0,0 +1,3 @@
++<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
++<path d="M6.5 11L9.5 8L6.5 5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
++</svg>
+diff --git a/crates/typst-docs/public/assets/16-close-dark.svg b/crates/typst-docs/public/assets/16-close-dark.svg
+new file mode 100644
+index 00000000..ae9506bd
+--- /dev/null
++++ b/crates/typst-docs/public/assets/16-close-dark.svg
+@@ -0,0 +1,3 @@
++<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
++<path fill-rule="evenodd" clip-rule="evenodd" d="M8.00001 7.11609L12.1058 3.01025L12.9897 3.89414L8.88389 7.99998L12.9897 12.1058L12.1058 12.9897L8.00001 8.88386L3.89417 12.9897L3.01028 12.1058L7.11612 7.99998L3.01028 3.89414L3.89417 3.01025L8.00001 7.11609Z" fill="#19181f"/>
++</svg>
+\ No newline at end of file
+diff --git a/crates/typst-docs/public/assets/16-docs-dark.svg b/crates/typst-docs/public/assets/16-docs-dark.svg
+new file mode 100644
+index 00000000..0b4e6aa7
+--- /dev/null
++++ b/crates/typst-docs/public/assets/16-docs-dark.svg
+@@ -0,0 +1,8 @@
++<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
++<mask id="path-1-inside-1_1588_6259" fill="white">
++<path d="M3.49915 5.14087C3.49915 4.0363 4.39458 3.14087 5.49915 3.14087H12.0494V12.8592H5.49914C4.39457 12.8592 3.49915 11.9638 3.49915 10.8592V5.14087Z"/>
++</mask>
++<path d="M1.99915 5.14087C1.99915 3.34594 3.45422 1.89087 5.24915 1.89087H13.2994L10.7994 4.39087H5.49915C5.223 4.39087 4.99915 4.72666 4.99915 5.14087H1.99915ZM13.2994 14.1092H5.24915C3.45422 14.1092 1.99915 12.6541 1.99915 10.8592H4.99915C4.99915 11.2734 5.223 11.6092 5.49915 11.6092H10.7994L13.2994 14.1092ZM5.24915 14.1092C3.45422 14.1092 1.99915 12.6541 1.99915 10.8592V5.14087C1.99915 3.34594 3.45422 1.89087 5.24915 1.89087L5.49915 4.39087C5.223 4.39087 4.99915 4.72666 4.99915 5.14087V10.8592C4.99915 11.2734 5.223 11.6092 5.49915 11.6092L5.24915 14.1092ZM13.2994 1.89087V14.1092L10.7994 11.6092V4.39087L13.2994 1.89087Z" fill="#19181f" mask="url(#path-1-inside-1_1588_6259)"/>
++<line x1="6" y1="6.375" x2="9" y2="6.375" stroke="#19181f" stroke-width="1.25"/>
++<line x1="6" y1="8.5" x2="7.75195" y2="8.5" stroke="#19181f"/>
++</svg>
+\ No newline at end of file
+diff --git a/crates/typst-docs/public/assets/16-hamburger-dark.svg b/crates/typst-docs/public/assets/16-hamburger-dark.svg
+new file mode 100644
+index 00000000..da47172c
+--- /dev/null
++++ b/crates/typst-docs/public/assets/16-hamburger-dark.svg
+@@ -0,0 +1,3 @@
++<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
++<path fill-rule="evenodd" clip-rule="evenodd" d="M14 4.125H2V2.875H14V4.125ZM14 8.625H2V7.375H14V8.625ZM14 13.125H2V11.875H14V13.125Z" fill="#19181f"/>
++</svg>
+diff --git a/crates/typst-docs/public/assets/16-search-gray.svg b/crates/typst-docs/public/assets/16-search-gray.svg
+new file mode 100644
+index 00000000..dce983c5
+--- /dev/null
++++ b/crates/typst-docs/public/assets/16-search-gray.svg
+@@ -0,0 +1,3 @@
++<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
++  <path fill-rule="evenodd" clip-rule="evenodd" d="M10.3126 6.78132C10.3126 8.73161 8.73161 10.3126 6.78132 10.3126C4.83103 10.3126 3.25 8.73161 3.25 6.78132C3.25 4.83103 4.83103 3.25 6.78132 3.25C8.73161 3.25 10.3126 4.83103 10.3126 6.78132ZM9.69144 10.5753C8.88537 11.1945 7.87633 11.5626 6.78132 11.5626C4.14067 11.5626 2 9.42197 2 6.78132C2 4.14067 4.14067 2 6.78132 2C9.42197 2 11.5626 4.14067 11.5626 6.78132C11.5626 7.87633 11.1945 8.88537 10.5753 9.69144L13.9968 13.1129L13.1129 13.9968L9.69144 10.5753Z" fill="#19181f" />
++</svg>
+diff --git a/crates/typst-docs/public/assets/32-reference-c.svg b/crates/typst-docs/public/assets/32-reference-c.svg
+new file mode 100644
+index 00000000..68419b88
+--- /dev/null
++++ b/crates/typst-docs/public/assets/32-reference-c.svg
+@@ -0,0 +1,10 @@
++<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
++<g id="icon" clip-path="url(#clip0_1660_6312)">
++<path fill-rule="evenodd" clip-rule="evenodd" d="M2 16C2 23.732 8.26801 30 16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16ZM16 0C7.16344 0 0 7.16344 0 16C0 24.8366 7.16344 32 16 32C24.8366 32 32 24.8366 32 16C32 7.16344 24.8366 0 16 0ZM17 14.1368V24.1368H15V14.1368H17ZM14.625 10.1371C14.625 10.8965 15.2406 11.5121 16 11.5121C16.7594 11.5121 17.375 10.8965 17.375 10.1371V9.99997C17.375 9.24057 16.7594 8.62497 16 8.62497C15.2406 8.62497 14.625 9.24057 14.625 9.99997V10.1371Z" fill="#19181f"/>
++</g>
++<defs>
++<clipPath id="clip0_1660_6312">
++<rect width="32" height="32" fill="white"/>
++</clipPath>
++</defs>
++</svg>
+diff --git a/crates/typst-docs/public/assets/32-tutorial-c.svg b/crates/typst-docs/public/assets/32-tutorial-c.svg
+new file mode 100644
+index 00000000..0aa2b8df
+--- /dev/null
++++ b/crates/typst-docs/public/assets/32-tutorial-c.svg
+@@ -0,0 +1,11 @@
++<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
++<g id="icon" clip-path="url(#clip0_1660_6303)">
++<path fill-rule="evenodd" clip-rule="evenodd" d="M2 16C2 23.732 8.26801 30 16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16ZM16 0C7.16344 0 0 7.16344 0 16C0 24.8366 7.16344 32 16 32C24.8366 32 32 24.8366 32 16C32 7.16344 24.8366 0 16 0Z" fill="#19181f"/>
++<path d="M13.4291 22.4114V9.58868L21.9775 16.3053L13.4291 22.4114Z" stroke="#19181f" stroke-width="2"/>
++</g>
++<defs>
++<clipPath id="clip0_1660_6303">
++<rect width="32" height="32" fill="white"/>
++</clipPath>
++</defs>
++</svg>
+diff --git a/crates/typst-docs/public/assets/CascadiaMono-Regular-Sub.woff2 b/crates/typst-docs/public/assets/CascadiaMono-Regular-Sub.woff2
+new file mode 100644
+index 00000000..7057b91c
+Binary files /dev/null and b/crates/typst-docs/public/assets/CascadiaMono-Regular-Sub.woff2 differ
+diff --git a/crates/typst-docs/public/assets/HKGrotesk-Bold.woff2 b/crates/typst-docs/public/assets/HKGrotesk-Bold.woff2
+new file mode 100644
+index 00000000..1e994d22
+Binary files /dev/null and b/crates/typst-docs/public/assets/HKGrotesk-Bold.woff2 differ
+diff --git a/crates/typst-docs/public/assets/HKGrotesk-Regular.woff2 b/crates/typst-docs/public/assets/HKGrotesk-Regular.woff2
+new file mode 100644
+index 00000000..2a44e489
+Binary files /dev/null and b/crates/typst-docs/public/assets/HKGrotesk-Regular.woff2 differ
+diff --git a/crates/typst-docs/public/assets/HKGrotesk-SemiBold.woff2 b/crates/typst-docs/public/assets/HKGrotesk-SemiBold.woff2
+new file mode 100644
+index 00000000..5572d160
+Binary files /dev/null and b/crates/typst-docs/public/assets/HKGrotesk-SemiBold.woff2 differ
+diff --git a/crates/typst-docs/public/assets/apple-touch-icon.png b/crates/typst-docs/public/assets/apple-touch-icon.png
+new file mode 100644
+index 00000000..bb0afc18
+Binary files /dev/null and b/crates/typst-docs/public/assets/apple-touch-icon.png differ
+diff --git a/crates/typst-docs/public/assets/blur.webp b/crates/typst-docs/public/assets/blur.webp
+new file mode 100644
+index 00000000..9f2573ef
+Binary files /dev/null and b/crates/typst-docs/public/assets/blur.webp differ
+diff --git a/crates/typst-docs/public/assets/favicon-16x16.png b/crates/typst-docs/public/assets/favicon-16x16.png
+new file mode 100644
+index 00000000..66111ba3
+Binary files /dev/null and b/crates/typst-docs/public/assets/favicon-16x16.png differ
+diff --git a/crates/typst-docs/public/assets/favicon-32x32.png b/crates/typst-docs/public/assets/favicon-32x32.png
+new file mode 100644
+index 00000000..24edfbab
+Binary files /dev/null and b/crates/typst-docs/public/assets/favicon-32x32.png differ
+diff --git a/crates/typst-docs/public/assets/safari-pinned-tab.svg b/crates/typst-docs/public/assets/safari-pinned-tab.svg
+new file mode 100644
+index 00000000..3d8f967c
+--- /dev/null
++++ b/crates/typst-docs/public/assets/safari-pinned-tab.svg
+@@ -0,0 +1,29 @@
++<?xml version="1.0" standalone="no"?>
++<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
++ "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
++<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
++ width="700.000000pt" height="700.000000pt" viewBox="0 0 700.000000 700.000000"
++ preserveAspectRatio="xMidYMid meet">
++<metadata>
++Created by potrace 1.14, written by Peter Selinger 2001-2017
++</metadata>
++<g transform="translate(0.000000,700.000000) scale(0.100000,-0.100000)"
++fill="#000000" stroke="none">
++<path d="M3645 6252 c-6 -5 -39 -21 -75 -37 -36 -15 -112 -49 -169 -76 -57
++-27 -105 -49 -107 -49 -2 0 -45 -19 -96 -43 -51 -24 -236 -108 -410 -187
++l-318 -144 -2 -245 -3 -245 -170 -52 c-93 -29 -219 -68 -280 -85 -60 -18 -113
++-35 -118 -39 -6 -5 49 -288 69 -352 5 -16 26 -18 251 -18 135 0 247 -1 249 -3
++2 -1 5 -644 7 -1427 1 -784 6 -1436 9 -1450 4 -14 12 -59 18 -100 35 -220 113
++-400 233 -537 77 -88 258 -198 413 -252 76 -27 222 -59 311 -68 127 -15 371
++-9 460 10 229 49 480 164 768 352 109 71 350 248 432 317 l42 35 -25 36 c-13
++20 -24 39 -24 42 0 3 -17 32 -38 63 -21 31 -52 83 -70 114 -18 32 -37 60 -42
++63 -5 3 -37 -12 -72 -33 -176 -107 -362 -191 -508 -229 -188 -49 -422 -26
++-537 53 -60 41 -92 86 -120 169 -46 133 -46 139 -48 1513 l-2 1303 156 -6 c86
++-3 219 -7 296 -10 134 -5 229 -9 503 -20 94 -4 122 -2 122 7 0 7 7 49 15 93
++19 110 23 131 35 205 5 36 12 79 15 95 3 17 12 71 21 120 8 50 17 98 18 107 4
++17 -19 18 -163 3 -24 -2 -87 -7 -140 -10 -53 -4 -112 -8 -131 -10 -19 -2 -78
++-6 -130 -10 -52 -4 -111 -8 -130 -10 -19 -2 -78 -6 -130 -10 -52 -3 -111 -8
++-130 -10 -19 -2 -78 -7 -131 -10 l-95 -6 1 533 c0 293 -1 539 -3 546 -5 14
++-14 15 -27 4z"/>
++</g>
++</svg>
+diff --git a/crates/typst-docs/public/assets/site.webmanifest b/crates/typst-docs/public/assets/site.webmanifest
+new file mode 100644
+index 00000000..8357f9a1
+--- /dev/null
++++ b/crates/typst-docs/public/assets/site.webmanifest
+@@ -0,0 +1,29 @@
++{
++  "name": "Typst",
++  "short_name": "Typst",
++  "icons": [
++    {
++      "src": "/assets/android-chrome-192x192.png",
++      "sizes": "192x192",
++      "type": "image/png",
++      "purpose": "any"
++    },
++    {
++      "src": "/assets/android-chrome-512x512.png",
++      "sizes": "512x512",
++      "type": "image/png",
++      "purpose": "any"
++    },
++    {
++      "src": "/assets/maskable_icon.png",
++      "sizes": "1024x1024",
++      "type": "image/png",
++      "purpose": "maskable"
++    }
++  ],
++  "theme_color": "#239dad",
++  "background_color": "#eff0f3",
++  "categories": ["productivity", "education", "utilities"],
++  "display": "fullscreen",
++  "start_url": "/"
++}
+diff --git a/crates/typst-docs/public/assets/typst.svg b/crates/typst-docs/public/assets/typst.svg
+new file mode 100644
+index 00000000..478d16cd
+--- /dev/null
++++ b/crates/typst-docs/public/assets/typst.svg
+@@ -0,0 +1,9 @@
++<svg width="91" height="35" viewBox="0 0 91 35" fill="none" xmlns="http://www.w3.org/2000/svg">
++<g id="logo">
++<path d="M7.88785 18.1481C7.88785 19.2805 8.05033 20.0404 8.3753 20.4278C8.70026 20.8152 9.29111 21.0089 10.1478 21.0089C11.0341 21.0089 12.1715 20.5619 13.56 19.6679L14.4463 21.143C11.8465 23.3184 9.70471 24.4061 8.02079 24.4061C6.33687 24.4061 5.00745 24.0038 4.03255 23.1992C3.05765 22.3648 2.5702 20.9046 2.5702 18.8186V7.10728H0.35451L0 5.45338L2.5702 4.64879V2.45849L7.88785 0V4.91699L13.1169 4.51469L12.6294 7.42018L7.88785 7.24138V18.1481Z" fill="currentColor"/>
++<path d="M17.5836 34.5977H16.8302C16.1212 33.3759 15.5747 31.6326 15.1906 29.3678L16.2098 28.742C17.0666 29.2784 17.8199 29.5466 18.4698 29.5466C19.8583 29.5466 20.9219 28.9059 21.6604 27.6245L23.1671 24.0932L16.3871 8.13538C16.0326 7.33078 15.7224 6.82418 15.4565 6.61558C15.1906 6.40698 14.6884 6.25798 13.9498 6.16858L13.6396 4.51469C16.003 4.75309 17.7017 4.87229 18.7357 4.87229C19.7697 4.87229 21.6161 4.75309 24.2749 4.51469L24.0977 6.07918C24.0386 6.10898 23.8761 6.15368 23.6102 6.21328C23.3739 6.27288 23.1671 6.33248 22.9898 6.39208C22.8421 6.42188 22.6649 6.46658 22.4581 6.52618C22.0445 6.70498 21.8377 6.92848 21.8377 7.19668C21.8377 7.40528 21.8968 7.71818 22.0149 8.13538L25.9145 18.1928L29.7255 7.95657C29.8141 7.68837 29.8585 7.43508 29.8585 7.19668C29.8585 6.66028 29.0756 6.30268 27.5098 6.12388L27.4212 4.55938C28.8688 4.76798 30.08 4.87229 31.0549 4.87229C32.0298 4.87229 33.6399 4.76798 35.8851 4.55938L35.5749 6.21328C34.8659 6.24308 34.3637 6.37718 34.0683 6.61558C33.8024 6.82418 33.5217 7.27118 33.2263 7.95657L23.9204 29.9042C22.591 33.0332 20.4787 34.5977 17.5836 34.5977Z" fill="currentColor"/>
++<path d="M49.1768 22.1264C50.329 22.1264 51.3039 21.4857 52.1015 20.2043C52.9287 18.8931 53.3423 16.9859 53.3423 14.4828C53.3423 9.83397 51.9981 7.50958 49.3098 7.50958C48.2167 7.50958 47.0202 8.12048 45.7204 9.34227V19.6232C46.0453 20.3384 46.5328 20.9344 47.1827 21.4112C47.8327 21.888 48.4974 22.1264 49.1768 22.1264ZM49.2655 35C46.518 34.7318 44.6568 34.5977 43.6819 34.5977C42.707 34.5977 40.7572 34.7318 37.8325 35L37.3894 33.3908C38.4529 33.1524 39.221 32.8842 39.6937 32.5862C40.1664 32.2882 40.4027 31.8263 40.4027 31.2005V8.89527C40.4027 7.88208 40.0187 7.37548 39.2506 7.37548L37.2121 7.64368L36.9906 5.94508C39.5312 4.81269 41.9389 4.14219 44.2137 3.93359L45.1443 4.96168C45.1443 5.61728 45.292 6.36228 45.5874 7.19668L47.5372 5.72158C48.8962 4.67859 50.1222 4.15709 51.2153 4.15709C53.9036 4.15709 55.883 4.97658 57.1533 6.61558C58.4236 8.25457 59.0588 10.6088 59.0588 13.6782C59.0588 16.7177 58.0987 19.2656 56.1784 21.3218C54.2581 23.378 51.7913 24.4061 48.778 24.4061C47.8031 24.4061 46.7839 24.0783 45.7204 23.4227V31.2899C45.7204 31.8561 45.9567 32.3031 46.4294 32.6309C47.1089 32.9289 47.9951 33.1673 49.0882 33.3461L49.5757 33.4355L49.2655 35Z" fill="currentColor"/>
++<path d="M67.3337 22.2605C68.0427 22.2605 68.6336 22.037 69.1063 21.59C69.5789 21.143 69.8153 20.5917 69.8153 19.9361C69.8153 19.2507 69.7267 18.7441 69.5494 18.4163C69.3722 18.0587 69.0767 17.7309 68.6631 17.4329C68.0723 16.9561 67.2303 16.4496 66.1373 15.9132C65.0737 15.3768 64.2318 14.9149 63.6114 14.5275C63.0205 14.1401 62.4297 13.5143 61.8388 12.6501C61.2775 11.7561 60.9969 10.728 60.9969 9.56577C60.9969 7.89698 61.6468 6.58578 62.9467 5.63218C64.2761 4.64879 65.9157 4.15709 67.8655 4.15709C69.8153 4.15709 72.031 4.49979 74.5126 5.18518C74.4239 7.12218 74.1728 8.76117 73.7592 10.1022L71.9867 10.5045C71.2777 7.64368 69.9335 6.21328 67.9541 6.21328C66.6247 6.21328 65.96 7.00298 65.96 8.58237C65.96 9.20817 66.2111 9.74457 66.7133 10.1916C67.2451 10.6386 68.0132 11.1154 69.0176 11.622C70.0221 12.0988 70.7459 12.4713 71.189 12.7395C71.6322 12.9779 72.223 13.3802 72.9616 13.9464C74.3205 15.0192 75 16.524 75 18.461C75 20.398 74.2614 21.8731 72.7843 22.8863C71.3072 23.8995 69.3574 24.4061 66.9349 24.4061C64.542 24.4061 62.4444 24.0038 60.6423 23.1992C60.5833 22.6926 60.5537 21.8135 60.5537 20.5619C60.5537 19.2805 60.5833 18.3865 60.6423 17.8799L62.8137 17.3883C63.0501 18.8484 63.5671 20.0255 64.3647 20.9195C65.1623 21.8135 66.152 22.2605 67.3337 22.2605Z" fill="currentColor"/>
++<path d="M84.4416 18.1481C84.4416 19.2805 84.604 20.0404 84.929 20.4278C85.254 20.8152 85.8448 21.0089 86.7016 21.0089C87.5878 21.0089 88.7252 20.5619 90.1137 19.6679L91 21.143C88.4003 23.3184 86.2584 24.4061 84.5745 24.4061C82.8906 24.4061 81.5612 24.0038 80.5863 23.1992C79.6114 22.3648 79.1239 20.9046 79.1239 18.8186V7.10728H76.9082L76.5537 5.45338L79.1239 4.64879V2.45849L84.4416 0V4.91699L89.6706 4.51469L89.1831 7.42018L84.4416 7.24138V18.1481Z" fill="currentColor"/>
++</g>
++</svg>
+diff --git a/crates/typst-docs/public/scripts/analytics.js b/crates/typst-docs/public/scripts/analytics.js
+new file mode 100644
+index 00000000..1ab16e2a
+--- /dev/null
++++ b/crates/typst-docs/public/scripts/analytics.js
+@@ -0,0 +1 @@
++// Add your analytics code here!
+diff --git a/crates/typst-docs/public/scripts/docs.js b/crates/typst-docs/public/scripts/docs.js
+new file mode 100644
+index 00000000..f8bd39bb
+--- /dev/null
++++ b/crates/typst-docs/public/scripts/docs.js
+@@ -0,0 +1,608 @@
++const hoverQuery = window.matchMedia("(hover: hover)");
++let isHover = hoverQuery.matches;
++hoverQuery.addEventListener("change", (n) => {
++  isHover = n.matches;
++});
++const hasTransitionEnd = "ontransitionend" in window,
++  prefersReducedMotion =
++    window.matchMedia("(prefers-reduced-motion: reduce)").matches,
++  collapseFactory = (n, t, s) => (o, e) => {
++    t.removeEventListener("transitionend", s),
++      e && (t.style.maxHeight = `${o}px`),
++      window.requestAnimationFrame(() => {
++        t.style.pointerEvents = "none",
++          t.style.userSelect = "none",
++          t.style.maxHeight = "0px",
++          t.style.opacity = "0";
++      }),
++      n.setAttribute("aria-expanded", "false");
++  },
++  expandFactory = (n, t) => {
++    const s = () => {
++      t.style.maxHeight = "none";
++    };
++    return {
++      expand: (o, e) => {
++        hasTransitionEnd && !prefersReducedMotion && e
++          ? (t.addEventListener("transitionend", s, { once: !0 }),
++            t.style.maxHeight = `${o}px`,
++            t.style.pointerEvents = "auto",
++            t.style.userSelect = "auto",
++            t.style.opacity = "1")
++          : s(),
++          n.setAttribute("aria-expanded", "true");
++      },
++      handler: s,
++    };
++  },
++  toggleFactory = (n, t) => {
++    const { expand: s, handler: o } = expandFactory(n, t),
++      e = collapseFactory(n, t, o);
++    return {
++      toggle: (c) => {
++        n.getAttribute("aria-expanded") === "true" ? e(c, !0) : s(c, !0);
++      },
++      expand: s,
++      collapse: e,
++    };
++  };
++function setUpAccordeon(n) {
++  const t = Array.from(n.children),
++    s = t.some((e) => e.querySelector("li > a[aria-current]"));
++  let o = t.filter((e) => e.tagName === "LI").reduce((e, c) => {
++    const a = c.getElementsByTagName("button"),
++      d = c.getElementsByTagName("ul"),
++      p = c.getElementsByTagName("a");
++    if (a.length === 0 || d.length === 0) return e;
++    const f = d[0];
++    return e.push({
++      button: a[0],
++      child: f,
++      target: c,
++      anchor: p.length > 0 ? p[0] : null,
++    }),
++      e;
++  }, []);
++  return o.length === 0 || (o.forEach((e) => {
++    const c = setUpAccordeon(e.child),
++      a = e.anchor.getAttribute("aria-current") === "page";
++    setUpSingleAccordeon(e.target, e.button, e.child, c || a, !1);
++  }),
++    n.classList.add("animated")),
++    s;
++}
++function setUpSingleAccordeon(n, t, s, o, e = !1) {
++  const { toggle: c, expand: a, collapse: d } = toggleFactory(n, s);
++  s.style.overflow = "visible hidden";
++  let p = s.offsetHeight;
++  o ? a(p, !1) : d(p, !1),
++    t.addEventListener("click", (f) => {
++      e && f.preventDefault(), c(p);
++    });
++}
++function isElementInViewport(n) {
++  const t = n.getBoundingClientRect();
++  return t.top >= 0 && t.left >= 0 &&
++    t.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
++    t.right <= (window.innerWidth || document.documentElement.clientWidth);
++}
++function setUpOnPageNavigation(n) {
++  const t = Array.from(n.querySelectorAll("li[data-assoc]")).reduce((o, e) => {
++      const c = e.getAttribute("data-assoc"),
++        a = e.getElementsByTagName("a"),
++        d = document.getElementById(c);
++      return d && a.length > 0 && o.push({ item: e, assoc: d, anchor: a[0] }),
++        o;
++    }, []),
++    s = () => {
++      const o = t.find((e) => isElementInViewport(e.assoc));
++      o &&
++        (t.forEach((e) => e.item.removeAttribute("aria-current")),
++          o.item.setAttribute("aria-current", "true"));
++    };
++  s(),
++    window.addEventListener("scroll", s),
++    window.addEventListener("resize", s);
++}
++function setUpTooltip(n) {
++  const t = n.querySelector("svg"), s = n.querySelector("div[role='tooltip']");
++  let o = !1;
++  const e = t.getElementsByTagName("title")[0];
++  let c = e.textContent, a = 0;
++  const d = 256,
++    p = () => {
++      const r = window.innerWidth, l = t.getBoundingClientRect();
++      l.left + d / 2 > r
++        ? (s.style.left = `${r - d - l.left - 32}px`, s.classList.add("mobile"))
++        : l.left - d / 2 < 0
++        ? (s.style.left = `${-l.left + 32}px`, s.classList.add("mobile"))
++        : (s.style.left = "-120px", s.classList.remove("mobile")),
++        o = !0,
++        e.innerHTML = "",
++        s.style.display = "block",
++        window.requestAnimationFrame(() => {
++          s.style.opacity = "1",
++            s.style.pointerEvents = "auto",
++            s.removeAttribute("aria-hidden");
++        }),
++        a = Date.now();
++    },
++    f = () => {
++      e.innerHTML = c, o = !1;
++      const r = () => {
++        s.style.display = "none",
++          s.style.pointerEvents = "none",
++          s.setAttribute("aria-hidden", "true");
++      };
++      hasTransitionEnd && !prefersReducedMotion
++        ? s.addEventListener("transitionend", r, { once: !0 })
++        : r(),
++        window.requestAnimationFrame(() => {
++          s.style.opacity = "0",
++            hasTransitionEnd && !prefersReducedMotion &&
++            s.removeEventListener("transitionend", r);
++        });
++    };
++  t.addEventListener("click", () => {
++    isHover || (o && Date.now() - a > 100 ? f() : p());
++  }),
++    t.addEventListener("mouseenter", (r) => {
++      r.preventDefault(), p();
++    }),
++    t.addEventListener("mousemove", (r) => {
++      o && r.preventDefault();
++    }),
++    t.addEventListener("focus", p),
++    t.addEventListener("blur", f),
++    t.addEventListener("mouseleave", f),
++    window.addEventListener("click", (r) => {
++      o && !n.contains(r.target) && f();
++    }),
++    window.addEventListener("mouseleave", f),
++    window.addEventListener("keydown", (r) => {
++      o && r.key === "Escape" && f();
++    });
++}
++function setUpCollapsingSidebar(n) {
++  const t = document.querySelector("button.hamburger"),
++    s = n.querySelector("button.close");
++  n.classList.add("mobile-hidden"), n.style.opacity = "1";
++  const o = (d) => {
++      n.classList.contains("mobile-hidden") || n.contains(d.target) ||
++        (c(), d.preventDefault());
++    },
++    e = () => {
++      n.classList.add("mobile-hidden"), n.style.transform = "translateX(0)";
++    },
++    c = () => {
++      window.removeEventListener("click", o),
++        hasTransitionEnd && !prefersReducedMotion
++          ? (n.style.transform = "translateX(-100%)",
++            n.addEventListener("transitionend", e, { once: !0 }))
++          : e();
++    },
++    a = () => {
++      n.removeEventListener("transitionend", e),
++        n.style.transform = "translateX(-100%)",
++        n.classList.remove("mobile-hidden"),
++        requestAnimationFrame(() => {
++          window.addEventListener("click", o),
++            n.style.transform = "translateX(0)";
++        });
++    };
++  t.addEventListener("click", a), s.addEventListener("click", c);
++}
++function copyText(n) {
++  if ("clipboard" in navigator) {
++    navigator.clipboard.writeText(n);
++    return;
++  } else {
++    const t = document.createElement("input");
++    t.value = n,
++      document.body.appendChild(t),
++      t.select(),
++      document.execCommand("copy"),
++      document.body.removeChild(t);
++  }
++}
++function setUpSymbolFlyout(n) {
++  const t = document.getElementById("flyout-template"),
++    s = document.getElementById("flyout-sym-row");
++  if (!n || !t || !s) return;
++  if (!("content" in document.createElement("template"))) {
++    console.warn("Browser does not support template elements");
++    return;
++  }
++  const o = t.content.firstElementChild.cloneNode(!0);
++  o.style.display = "none", n.appendChild(o);
++  const e = o.querySelector(".info button"),
++    c = o.querySelector(".info button .sym"),
++    a = o.querySelector(".sym-name code"),
++    d = o.querySelector(".info .unic-name"),
++    p = o.querySelector(".info .codepoint span"),
++    f = o.querySelector(".info .accent"),
++    r = o.querySelector(".info .accent img"),
++    l = o.querySelector(".variants-box"),
++    h = o.querySelector(".variants-box .symbol-grid"),
++    m = o.querySelector(".shorthand"),
++    i = m.querySelector(".remark"),
++    y = o.querySelector(".shorthand code"),
++    E = o.querySelector(".sym-name .copy"),
++    N = o.querySelector(".shorthand .copy"),
++    T = o.querySelector(".codepoint .copy"),
++    P = "/assets/icons/16-close.svg",
++    H = "/assets/icons/16-check.svg";
++  let g;
++  const C = () => {
++      const u = document.getElementById(g);
++      u && (u.ariaHasPopup = "false"),
++        g = void 0,
++        o.style.display = "none",
++        window.removeEventListener("click", k);
++      for (const { target: w, listener: v } of L) {
++        w.removeEventListener("click", v);
++      }
++    },
++    k = (u) => {
++      g !== void 0 && g !== u.target.id && !o.contains(u.target) &&
++        (C(), u.preventDefault());
++    };
++  let L = [];
++  const x = (u) => {
++    u.ariaHasPopup = "true", g = u.id, o.style.display = "block";
++    const w = u.id.replace(/^symbol-/, ""),
++      v = u.dataset.unicName,
++      A = parseInt(u.dataset.codepoint, 10),
++      b = u.dataset.accent != null,
++      X = u.dataset.alternates ? u.dataset.alternates.split(" ") : [],
++      F = u.dataset.mathShorthand,
++      U = u.dataset.markupShorthand,
++      S = U || F,
++      M = String.fromCodePoint(A),
++      $ = u.dataset.override;
++    copyText(M);
++    let q = A.toString(16).toUpperCase();
++    q.length < 4 && (q = "0".repeat(4 - q.length) + q),
++      o.classList.toggle("override", $ != null),
++      c.textContent = $ ?? M,
++      a.textContent = w,
++      d.textContent = v,
++      p.textContent = q,
++      f.style.display = b ? "block" : "none",
++      r.src = b ? H : P,
++      r.setAttribute("alt", b ? "Yes" : "No"),
++      m.style.display = S && S.length > 0 ? "block" : "none",
++      y.textContent = S;
++    let O = () => {
++      copyText(w);
++    };
++    if (
++      E.addEventListener("click", O),
++        L.push({ target: E, listener: O }),
++        S && S.length > 0
++    ) {
++      let B = () => {
++        copyText(S);
++      };
++      N.addEventListener("click", B),
++        L.push({ target: N, listener: B }),
++        i &&
++        (F && !U
++          ? (i.textContent = "(only in math)", i.style.display = "inline")
++          : !F && U
++          ? (i.textContent = "(only in markup)", i.style.display = "inline")
++          : i.style.display = "none");
++    }
++    let R = () => {
++      copyText("\\u{" + q + "}");
++    };
++    if (
++      T.addEventListener("click", R),
++        L.push({ target: T, listener: R }),
++        l !== null && h !== null
++    ) {
++      const B = X.map((W) => {
++        const D = s.content.firstElementChild.cloneNode(!0),
++          Q = D.querySelector(".sym"),
++          j = D.querySelector("button"),
++          I = document.getElementById(`symbol-${W}`),
++          K = I?.dataset.override;
++        if (I) {
++          j.classList.toggle("override", K != null),
++            Q.textContent = K ??
++              String.fromCodePoint(parseInt(I.dataset.codepoint, 10));
++        } else return null;
++        return j.addEventListener("click", (Y) => {
++          x(I), I.scrollIntoView(), Y.preventDefault();
++        }),
++          D;
++      }).filter((W) => W != null);
++      l.style.display = B.length > 0 ? "block" : "none",
++        h.replaceChildren(...B);
++    }
++    let V = u.offsetLeft - 12;
++    const z = u.offsetTop - 12;
++    u.getBoundingClientRect().left + 408 > window.innerWidth &&
++    (V = Math.max(8, window.innerWidth - n.getBoundingClientRect().left - 424)),
++      o.style.left = `${V}px`,
++      o.style.top = `${z}px`;
++  };
++  e.addEventListener("click", C),
++    window.addEventListener("keydown", (u) => {
++      u.key === "Escape" && g !== void 0 && (C(), u.preventDefault());
++    });
++  for (let u = 0; u < n.children.length; u++) {
++    const w = n.children[u];
++    w.tagName === "LI" && w.addEventListener("click", (v) => {
++      x(w), v.preventDefault();
++    });
++  }
++  window.requestAnimationFrame(() => {
++    window.removeEventListener("click", k),
++      window.addEventListener("click", k, { capture: !0 });
++  });
++}
++function setUpSymbolSearch() {
++  const n = document.querySelector("main > .symbol-grid"),
++    t = document.getElementById("symbol-search");
++  if (!n || !t) return;
++  const s = Array.from(n.children).filter((p) => p.tagName === "LI");
++  s.forEach((p, f) => {
++    p.dataset.originalOrder = f;
++  });
++  const o = s.map((p) => {
++      const f = parseInt(p.dataset.codepoint, 10);
++      return {
++        name: p.id.replace(/^symbol-/, ""),
++        unicName: p.dataset.unicName,
++        symbol: String.fromCodePoint(f),
++        shorthand: p.dataset.shorthand,
++      };
++    }),
++    e = new Fuse(o, {
++      keys: [{ name: "symbol", weight: .95 }, { name: "name", weight: .9 }, {
++        name: "unicName",
++        weight: .7,
++      }, { name: "shorthand", weight: .5 }],
++      threshold: .3,
++      ignoreLocation: !0,
++    }),
++    c = () => {
++      if (t.value.length === 0) {
++        s.forEach((r) => r.style.display = "block"),
++          s.sort((
++            { dataset: { originalOrder: r } },
++            { dataset: { originalOrder: l } },
++          ) => parseInt(r, 10) - parseInt(l, 10)).forEach((r) =>
++            r.parentNode.appendChild(r)
++          );
++        return;
++      }
++      const p = e.search(t.value).map((r) => r.item.name),
++        f = parseInt(
++          t.value.replace(/^\\?[uU]\{?\+?/, "").replace(/\}$/, ""),
++          16,
++        ).toString();
++      s.forEach((r) => {
++        const l = p.indexOf(r.id.replace(/^symbol-/, ""));
++        l !== -1 || r.dataset.codepoint == f
++          ? (r.style.display = "block", r.dataset.order = l)
++          : (r.style.display = "none", delete r.dataset.order);
++      }),
++        s.filter((r) => "order" in r.dataset).sort((
++          { dataset: { order: r } },
++          { dataset: { order: l } },
++        ) => parseInt(r, 10) - parseInt(l, 10)).forEach((r) =>
++          r.parentNode.appendChild(r)
++        );
++    };
++  t.addEventListener("input", c), t.addEventListener("keydown", c);
++  const d = new URLSearchParams(window.location.search).get("query");
++  d && (t.value = d), c();
++}
++async function setUpSearch(n, t) {
++  const s = new AbortController(),
++    o = setTimeout(() => s.abort(), 1e4),
++    e = await fetch("/assets/search.json?bust=20230915", { signal: s.signal })
++      .then((a) => a.ok ? a.json() : null).catch(
++        (a) => (console.error(a), null)
++      );
++  if (clearTimeout(o), !e) return;
++  const c = () => {
++    let a = [], d = [];
++    const p = n.value,
++      f = n.value.toLowerCase().split(/[!-/:-@[-`{-~\s]/g).filter((l) =>
++        l.length > 0
++      );
++    function r(l) {
++      if (a.includes(l)) return;
++      const h = e.items[l];
++      if (d[l] = score(h, p), a.length < 10) {
++        a.push(l);
++        return;
++      }
++      let m = 0;
++      for (let i = 0; i < a.length; i++) d[a[i]] < d[a[m]] && (m = i);
++      if (d[l] > d[a[m]]) {
++        a[m] = l;
++        return;
++      }
++    }
++    for (const l of f) {
++      let h = 0, m = e.words.length - 1;
++      for (; h < m;) {
++        let y = Math.floor((h + m) / 2);
++        if (e.words[y].startsWith(l)) {
++          h = y;
++          break;
++        } else l < e.words[y] ? m = y - 1 : h = y + 1;
++      }
++      let i = h;
++      for (; i > 0 && e.words[i].startsWith(l);) i--;
++      for (i++; i < e.words.length && e.words[i].startsWith(l);) {
++        for (const y of e.hits[i]) r(y);
++        i++;
++      }
++    }
++    a.sort((l, h) => d[h] - d[l]),
++      t.replaceChildren(...a.map((l) => {
++        const h = e.items[l];
++        let m = h.route;
++        h.kind == "Symbols" && (m += "?query=" + p);
++        const i = document.createElement("li"),
++          y = document.createElement("a"),
++          E = document.createElement("span");
++        return y.href = m,
++          y.textContent = h.title,
++          E.classList.add("type"),
++          E.textContent = h.kind,
++          y.appendChild(E),
++          i.appendChild(y),
++          i;
++      })),
++      t.classList.toggle("hidden", a.length === 0);
++  };
++  n.addEventListener("keydown", c), n.addEventListener("keyup", c), c();
++}
++const FACTORS = {
++  Type: 1,
++  Function: .9,
++  Parameter: .8,
++  Method: .7,
++  Symbols: .6,
++  Chapter: .5,
++  Category: .5,
++};
++function score(n, t) {
++  return (FACTORS[n.kind.split(" ")[0]] || .4) *
++    Math.max(
++      stringScore(n.title, t),
++      ...(n.keywords || []).map((o) => stringScore(o, t)),
++    );
++}
++function stringScore(n, t) {
++  const s = simplify(n), o = simplify(t);
++  return s.includes(o) ? 100 - n.length : 0;
++}
++function simplify(n) {
++  return n.toLowerCase().replaceAll(/[!-/:-@[-`{-~\s]/g, "");
++}
++async function setUpPackages() {
++  const n = document.querySelector("main > .package-list > tbody"),
++    t = document.getElementById("package-search"),
++    s = document.getElementById("package-show-all-versions");
++  if (!n || !t) return;
++  const e = await (await fetch("https://packages.typst.org/preview/index.json"))
++    .json();
++  let c, a = [], d = [], p;
++  function f() {
++    const m = s.checked;
++    if (p !== m) {
++      p = m, d = [];
++      for (let i = 0; i < e.length; i++) {
++        (m || i + 1 >= e.length || e[i].name !== e[i + 1].name) && d.push(e[i]);
++      }
++      c = new Fuse(d, {
++        keys: [{ name: "name", weight: .9 }, { name: "keywords", weight: .8 }, {
++          name: "description",
++          weight: .6,
++        }],
++        threshold: .3,
++        ignoreLocation: !0,
++      });
++    }
++  }
++  function r() {
++    f();
++    for (const { target: i, listener: y } of a) {
++      i.removeEventListener("click", y);
++    }
++    a = [];
++    let m;
++    t.value.length === 0 ? m = d : m = c.search(t.value).map((i) => i.item),
++      n.replaceChildren();
++    for (let i = 0; i < m.length; i++) {
++      const {
++          name: y,
++          version: E,
++          description: N,
++          repository: T,
++          homepage: P,
++        } = m[i],
++        H = P || T,
++        g = document.createElement("tr"),
++        C = () => {
++          copyText(`#import "@preview/${y}:${E}"`);
++        },
++        k = document.createElement("td"),
++        L = document.createElement("a");
++      L.href =
++        `https://github.com/typst/packages/tree/main/packages/preview/${y}/${E}`,
++        L.textContent = y,
++        k.appendChild(L),
++        g.appendChild(k);
++      const x = document.createElement("td");
++      x.textContent = N, g.appendChild(x);
++      const u = document.createElement("td");
++      u.textContent = E, g.appendChild(u);
++      const w = document.createElement("td"),
++        v = document.createElement("button");
++      v.classList.add("copy"),
++        v.innerHTML =
++          '<img width="16" height="16" alt="Copy" src="/assets/icons/16-copy.svg">',
++        v.addEventListener("click", C),
++        w.appendChild(v),
++        a.push({ target: v, listener: C }),
++        g.appendChild(w);
++      const A = document.createElement("td");
++      if (H) {
++        const b = document.createElement("a");
++        b.href = H,
++          b.innerHTML =
++            '<img width="16" height="16" alt="Copy" src="/assets/icons/16-link.svg">',
++          A.appendChild(b);
++      }
++      g.appendChild(A), n.appendChild(g);
++    }
++  }
++  t.addEventListener("input", r),
++    t.addEventListener("keydown", r),
++    s.addEventListener("input", r);
++  const h = new URLSearchParams(window.location.search).get("query");
++  h && (t.value = h), r();
++}
++document.addEventListener("DOMContentLoaded", () => {
++  for (const e of document.querySelectorAll("nav.folding > ul")) {
++    setUpAccordeon(e);
++  }
++  const n = document.querySelector("#page-overview > ul");
++  n && setUpOnPageNavigation(n),
++    setUpCollapsingSidebar(document.querySelector("nav.folding"));
++  for (const e of document.querySelectorAll("div.tooltip-context")) {
++    setUpTooltip(e);
++  }
++  const t = document.querySelector(".page-end-buttons a.previous"),
++    s = document.querySelector(".page-end-buttons a.next");
++  window.addEventListener("keydown", (e) => {
++    document.querySelectorAll("textarea:focus, input:focus").length > 0 ||
++      !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey &&
++        (e.key === "ArrowLeft" && t
++          ? window.location.href = t.href
++          : e.key === "ArrowRight" && s && (window.location.href = s.href));
++  });
++  for (const e of document.querySelectorAll(".previewed-code > pre")) {
++    e.clientWidth < e.scrollWidth && e.classList.add("big");
++  }
++  setUpPackages(),
++    setUpSearch(
++      document.getElementById("docs-search"),
++      document.getElementById("search-results"),
++    );
++  const o = () => {
++    for (const e of document.querySelectorAll("main > .symbol-grid")) {
++      setUpSymbolFlyout(e);
++    }
++    setUpSymbolSearch();
++  };
++  window.requestIdleCallback ? window.requestIdleCallback(o) : o();
++});
+diff --git a/crates/typst-docs/public/styles/default.css b/crates/typst-docs/public/styles/default.css
+new file mode 100644
+index 00000000..adb8f9b7
+--- /dev/null
++++ b/crates/typst-docs/public/styles/default.css
+@@ -0,0 +1,2521 @@
++@font-face {
++    font-display: swap;
++    font-family: HK Grotesk;
++    font-weight: 700;
++    src: local("HKGrotesk-Bold"), url(/assets/fonts/HKGrotesk-Bold.woff2) format("woff2"), url(/assets/fonts/HKGrotesk-Bold.ttf) format("truetype")
++}
++
++@font-face {
++    font-display: swap;
++    font-family: HK Grotesk;
++    font-weight: 600;
++    src: local("HKGrotesk-SemiBold"), url(/assets/fonts/HKGrotesk-SemiBold.woff2) format("woff2"), url(/assets/fonts/HKGrotesk-SemiBold.ttf) format("truetype")
++}
++
++@font-face {
++    font-display: swap;
++    font-family: HK Grotesk;
++    font-weight: 400;
++    src: local("HK Grotesk"), local("HKGrotesk-Regular"), url(/assets/fonts/HKGrotesk-Regular.woff2) format("woff2"), url(/assets/fonts/HKGrotesk-Regular.ttf) format("truetype")
++}
++
++@font-face {
++    font-display: swap;
++    font-family: Cascadia Mono;
++    font-weight: 400;
++    src: local("Cascadia Mono"), local("CascadiaMono-Regular"), url(/assets/fonts/CascadiaMono-Regular-Sub.woff2) format("woff2"), url(/assets/fonts/CascadiaMono-Regular-Sub.woff) format("woff"), url(/assets/fonts/CascadiaMono-Regular.ttf) format("truetype")
++}
++
++@keyframes slide {
++    0% {
++        transform: translateX(0)
++    }
++
++    to {
++        transform: translateX(-100%)
++    }
++}
++
++@keyframes slide-mobile {
++    0% {
++        transform: translateX(0)
++    }
++
++    to {
++        transform: translateX(-160%)
++    }
++}
++
++@media (hover:hover) {
++
++    button:hover,
++    input[type=submit]:hover {
++        background-color: #e4e5ea
++    }
++
++    #need-full-control .drawer button:hover {
++        background-color: #26252e
++    }
++
++    .vertical-btns button:hover {
++        background-color: #d7d9e0
++    }
++
++    .modal #md-close:hover,
++    .modal #md-next:hover,
++    .modal #md-prev:hover {
++        background: #1616162f !important
++    }
++}
++
++#__bs_notify__ {
++    display: none !important
++}
++
++body,
++html {
++    background-color: #fdfdfd;
++    color: #19181f;
++    font-family: HK Grotesk, Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Open Sans, Helvetica Neue, sans-serif;
++    font-size: 18px;
++    scroll-behavior: smooth;
++    scroll-padding-top: min(max(65px, 8vh), 128px)
++}
++
++body {
++    align-items: center;
++    display: flex;
++    flex-direction: column;
++    margin: 0;
++    padding: 0
++}
++
++main a:link,
++section a:link {
++    color: #007aff
++}
++
++main a:visited,
++section a:visited {
++    color: #5d25c6
++}
++
++body>:not(.full-width) {
++    box-sizing: border-box;
++    max-width: 992px;
++    width: 100%
++}
++
++body>header {
++    max-width: unset !important
++}
++
++body>footer,
++body>header>div {
++    max-width: 1536px !important
++}
++
++body>footer {
++    align-items: flex-end;
++    color: #565565;
++    display: flex;
++    font-size: 16px;
++    padding: 120px 40px 40px
++}
++
++body>footer>* {
++    flex-grow: 1
++}
++
++body>footer>:last-child {
++    text-align: right
++}
++
++body>footer ul {
++    list-style: none;
++    padding: 0
++}
++
++body>footer a {
++    color: inherit;
++    text-decoration: none
++}
++
++body.landing {
++    overflow-x: hidden
++}
++
++.no-overflow {
++    overflow: hidden
++}
++
++h2,
++h3,
++h4 {
++    font-weight: 600
++}
++
++h2 {
++    -webkit-margin-before: 16px;
++    -webkit-margin-after: 12px;
++    font-size: 24px;
++    margin-block-end: 12px;
++    margin-block-start: 16px
++}
++
++button {
++    -webkit-appearance: none;
++    -moz-appearance: none;
++    appearance: none;
++    background-color: #fdfdfd;
++    border: 1px solid #bdbfcc;
++    border-radius: 6px;
++    color: inherit;
++    margin: 0;
++    padding: 8px 16px;
++    -webkit-user-select: none;
++    -moz-user-select: none;
++    -ms-user-select: none;
++    user-select: none
++}
++
++button:-moz-focusring,
++input:-moz-focusring,
++textarea:-moz-focusring {
++    outline: 3px solid rgba(0, 122, 255, .5);
++    outline-offset: 0
++}
++
++button:focus,
++button:focus-visible,
++input:focus,
++input:focus-visible,
++textarea:focus {
++    outline: none
++}
++
++button:focus-visible,
++input:focus-visible,
++textarea:focus-visible {
++    outline: 3px solid rgba(0, 122, 255, .5);
++    outline-offset: 0
++}
++
++input:-ms-input-placeholder {
++    color: #565565
++}
++
++input::placeholder {
++    color: #565565
++}
++
++button:active,
++input[type=submit]:active {
++    background-color: #d7d9e0 !important
++}
++
++textarea {
++    font-family: inherit;
++    resize: vertical
++}
++
++input[type=checkbox] {
++    margin-left: 0;
++    margin-right: 8px
++}
++
++.code,
++code,
++pre {
++    font-family: Cascadia Mono, Courier New, Courier, monospace;
++    font-size: 15px
++}
++
++code .indented {
++    display: block;
++    margin-left: 2em
++}
++
++section {
++    column-gap: 24px;
++    gap: 32px;
++    padding: 80px 32px 40px;
++    row-gap: 16px
++}
++
++main {
++    padding: 0 32px
++}
++
++h1 {
++    -webkit-margin-after: 24px;
++    font-size: 36px;
++    font-weight: 700;
++    margin-block-end: 24px
++}
++
++h1 small {
++    -webkit-margin-start: .2em;
++    color: #565565;
++    font-size: 24px;
++    margin-inline-start: .2em
++}
++
++h3 {
++    font-size: inherit
++}
++
++p {
++    -webkit-margin-before: .5rem;
++    -webkit-margin-after: .5rem;
++    margin-block-end: .5rem;
++    margin-block-start: .5rem
++}
++
++address {
++    font-style: inherit
++}
++
++strong {
++    font-weight: 600
++}
++
++section>*>h2:first-child {
++    -webkit-margin-before: 0;
++    margin-block-start: 0
++}
++
++.signup {
++    margin-block: 48px 32px
++}
++
++.signup p,
++.signup>a {
++    font-size: 13px
++}
++
++.signup>a {
++    color: #fdfdfd !important
++}
++
++.hidden-tip {
++    opacity: 0;
++    pointer-events: none;
++    transition: opacity .2s ease
++}
++
++.hidden-tip.display {
++    opacity: 1;
++    pointer-events: auto
++}
++
++.hidden-tip.error {
++    color: #f4ffa4
++}
++
++.cta-field,
++.ctas>a {
++    border: 2px solid #fdfdfd;
++    border-radius: 8px;
++    margin: 0 auto 8px
++}
++
++.ctas>a {
++    font-weight: 600;
++    padding: 12px 24px
++}
++
++.ctas>a:not(:last-child) {
++    margin-right: 8px
++}
++
++.cta-field,
++.ctas>a.primary {
++    background: #fdfdfd;
++    border-color: #0a3649
++}
++
++.ctas>a {
++    color: inherit !important;
++    display: inline-block;
++    text-decoration: none;
++    -webkit-user-select: none;
++    -moz-user-select: none;
++    -ms-user-select: none;
++    user-select: none
++}
++
++.ctas>a.primary {
++    color: #19181f !important
++}
++
++.cta-field {
++    display: flex;
++    font-size: 14px;
++    max-width: 390px
++}
++
++.cta-field>:first-child {
++    border-radius: 8px 0 0 8px;
++    display: flex;
++    flex-direction: column;
++    flex-grow: 1;
++    line-height: 0
++}
++
++.cta-field>:first-child input {
++    background: none;
++    border: none;
++    box-sizing: border-box;
++    font-size: inherit;
++    margin: 0;
++    padding: 16px 15px;
++    width: 100%
++}
++
++.cta-field>:first-child input:first-child {
++    border-top-left-radius: 8px
++}
++
++.cta-field.no-captcha>:first-child input:first-child,
++.cta-field>:first-child input:last-child {
++    border-bottom-left-radius: 8px
++}
++
++.cta-field>:first-child svg {
++    background: #eff0f3;
++    border-bottom: 1px solid #d7d9e0;
++    border-top: 1px solid #d7d9e0;
++    box-sizing: border-box;
++    height: 80px;
++    transition: height .2s ease;
++    width: 100%
++}
++
++.cta-field.no-captcha>:first-child svg {
++    border-width: 0;
++    height: 0
++}
++
++.cta-field>:first-child .captcha-text {
++    max-height: 50px;
++    opacity: 1;
++    overflow: hidden;
++    transition: max-height .2s ease, opacity .2s ease, padding-block .2s ease
++}
++
++.cta-field.no-captcha>:first-child .captcha-text {
++    max-height: 0;
++    opacity: 0;
++    padding-block: 0
++}
++
++.cta-field input[type=submit] {
++    -webkit-appearance: none;
++    -moz-appearance: none;
++    appearance: none;
++    background: none;
++    border: none;
++    border-left: 2px solid #0a3649;
++    border-radius: 0 8px 8px 0;
++    color: #19181f;
++    cursor: pointer;
++    font-size: inherit;
++    font-weight: 400;
++    margin: 0;
++    min-height: 100%;
++    padding: 16px 15px;
++    text-transform: lowercase;
++    -webkit-user-select: none;
++    -moz-user-select: none;
++    -ms-user-select: none;
++    user-select: none
++}
++
++#cta h1,
++.landing h1 {
++    -webkit-margin-after: 1rem;
++    font-size: 56px;
++    margin-block-end: 1rem
++}
++
++#cta h2,
++.landing h2 {
++    font-size: 28px
++}
++
++#cta {
++    background-size: 143%;
++    border-radius: 32px;
++    margin: 120px 16px 40px;
++    padding: 100px 64px 80px;
++    text-align: center
++}
++
++#cta h2 {
++    -webkit-margin-before: 0;
++    display: block;
++    margin-block-start: 0
++}
++
++.banner {
++    background: #0a3649;
++    color: #fdfdfd;
++    display: flex;
++    gap: 4px;
++    justify-content: center;
++    padding: 8px;
++    position: -webkit-sticky;
++    position: sticky;
++    text-align: center;
++    top: 0;
++    z-index: 10
++}
++
++.banner button {
++    background: none;
++    border: none;
++    justify-self: flex-end;
++    line-height: 0;
++    margin: 0;
++    padding: 4px;
++    position: absolute;
++    right: 16px
++}
++
++.banner button:hover {
++    background-color: #11566c
++}
++
++.banner button:active {
++    background-color: #19798d !important
++}
++
++.banner+header {
++    top: 39px
++}
++
++.banner a {
++    color: inherit !important
++}
++
++.time {
++    font-weight: 700
++}
++
++header {
++    color: #fdfdfd;
++    font-size: 14px;
++    position: absolute;
++    top: 0;
++    z-index: 7
++}
++
++header.boring {
++    position: relative
++}
++
++header>div {
++    align-items: center;
++    display: flex;
++    gap: 8px;
++    justify-content: space-between;
++    margin: auto;
++    padding: 24px 32px
++}
++
++header>div>a img,
++header>div>a svg {
++    margin-top: 3px;
++    width: auto
++}
++
++header.fixed>div>a img,
++header.fixed>div>a svg {
++    height: 26px;
++    margin-top: 0;
++    width: auto
++}
++
++header.fixed {
++    box-shadow: 0 4px 12px rgba(89, 85, 101, .2);
++    position: fixed;
++    z-index: 5
++}
++
++header.boring,
++header.fixed {
++    background: #fdfdfd;
++    color: #19181f
++}
++
++header.fixed.blue {
++    background: #239dad;
++    box-shadow: 0 4px 16px -2px (89, 85, 101, .2);
++    color: #fdfdfd
++}
++
++header.fixed>div {
++    padding: 12px 32px
++}
++
++header>div>a:first-child:not(.btn) {
++    color: inherit;
++    display: block;
++    height: 33px
++}
++
++header.fixed>div>a:first-child {
++    align-items: center;
++    display: flex;
++    text-decoration: none
++}
++
++header.boring>div>a:first-child:not(.btn),
++header.fixed:not(.blue)>div>a:first-child {
++    color: #239dad
++}
++
++header.boring>div>a img {
++    filter: invert(47%) sepia(80%) saturate(436%) hue-rotate(139deg) brightness(95%) contrast(86%)
++}
++
++header.blue .logo-box img {
++    filter: invert(100%) sepia(1%) saturate(4%) hue-rotate(221deg) brightness(107%) contrast(98%)
++}
++
++header .beta-pill {
++    -webkit-margin-start: 12px;
++    border: 1px solid #565565;
++    border-radius: 4px;
++    bottom: 18px;
++    display: inline-block;
++    font-size: 11px;
++    font-weight: 600;
++    margin-inline-start: 12px;
++    padding: 0 4px;
++    position: relative;
++    text-transform: uppercase
++}
++
++header.fixed .beta-pill {
++    -webkit-margin-start: 8px;
++    bottom: 2px;
++    margin-inline-start: 8px
++}
++
++header.blue .beta-pill {
++    border: 1px solid #fdfdfd
++}
++
++header:not(.blue) .beta-pill {
++    color: #565565
++}
++
++header ul {
++    align-items: center;
++    display: flex;
++    gap: 16px;
++    list-style: none;
++    margin: 0;
++    padding: 0
++}
++
++header ul li svg {
++    margin-top: 2px
++}
++
++nav a {
++    color: inherit;
++    text-decoration: none;
++    transition: -webkit-text-decoration .2s ease-in-out;
++    transition: text-decoration .2s ease-in-out;
++    transition: text-decoration .2s ease-in-out, -webkit-text-decoration .2s ease-in-out
++}
++
++footer a:focus,
++footer a:hover,
++nav a:not(.btn):focus,
++nav a:not(.btn):hover {
++    text-decoration: underline
++}
++
++.nav-btn {
++    background-color: #ebf7f9;
++    border-radius: 8px;
++    color: #19181f;
++    display: block;
++    padding: 8px 12px;
++    -webkit-user-select: none;
++    -moz-user-select: none;
++    -ms-user-select: none;
++    user-select: none
++}
++
++.blue.fixed .nav-btn:active,
++.nav-btn:active {
++    background-color: #a6ebe6
++}
++
++.boring .nav-btn,
++.fixed .nav-btn {
++    background-color: #127885;
++    color: #fdfdfd
++}
++
++.boring .nav-btn:active,
++.fixed .nav-btn:active {
++    background-color: #0a3649
++}
++
++.blue.fixed .nav-btn {
++    background: #ebf7f9;
++    color: #19181f
++}
++
++.blurred {
++    background: url(/assets/images/blur.webp) no-repeat 50% scroll;
++    background-color: #00afc6;
++    color: #fdfdfd
++}
++
++.blurred.no-webp-alpha,
++.blurred.no-webp-lossy {
++    background: url(/assets/images/blur.png) no-repeat 50% scroll #00afc6
++}
++
++.number-discs {
++    -webkit-margin-before: 16px;
++    column-gap: 80px;
++    display: grid;
++    grid-template-columns: minmax(160px, 1fr) minmax(160px, 1fr);
++    list-style: none;
++    margin-block-start: 16px;
++    padding: 0;
++    row-gap: 32px
++}
++
++.number-discs>li {
++    position: relative
++}
++
++.number-discs>li:before {
++    align-items: center;
++    background: #33323e;
++    border-radius: 1em;
++    color: #fdfdfd;
++    content: "1";
++    display: flex;
++    font-weight: 600;
++    height: 2em;
++    justify-content: center;
++    left: -2.75em;
++    position: absolute;
++    text-align: center;
++    top: -.38em;
++    width: 2em
++}
++
++.number-discs>li:nth-child(2):before {
++    content: "2"
++}
++
++.number-discs>li:nth-child(3):before {
++    content: "3"
++}
++
++.number-discs>li:nth-child(4):before {
++    content: "4"
++}
++
++.number-discs>li:nth-child(5):before {
++    content: "5"
++}
++
++.number-discs>li>:first-child {
++    -webkit-margin-before: 0;
++    margin-block-start: 0
++}
++
++.status {
++    border-radius: 4px;
++    display: block;
++    padding: 8px 12px
++}
++
++.status.success {
++    background: #f2fff7;
++    border: 1px solid #3ed993
++}
++
++.status.error {
++    background: #fff1ef;
++    border: 1px solid #ea3e47
++}
++
++.field {
++    background: #eff0f3;
++    border-radius: 4px;
++    height: 52px;
++    margin: 0;
++    overflow: hidden;
++    padding: 0;
++    position: relative;
++    width: 100%
++}
++
++.field.high {
++    height: auto
++}
++
++.field.high textarea {
++    height: 153px
++}
++
++.field label {
++    color: #565565;
++    left: 12px;
++    padding: 0;
++    pointer-events: none;
++    position: absolute;
++    top: 16px;
++    transform-origin: left top;
++    transition: transform .25s ease-out;
++    -webkit-user-select: none;
++    -moz-user-select: none;
++    -ms-user-select: none;
++    user-select: none;
++    white-space: nowrap
++}
++
++.field input:focus+label,
++.field textarea:focus+label,
++.field.has-text label,
++.no-js .field label {
++    transform: translateY(-9px) scale(.84615)
++}
++
++.field input:autofill+label,
++.field textarea:autofill+label {
++    transform: translateY(-9px) scale(.84615)
++}
++
++.field input:-webkit-autofill+label,
++.field textarea:-webkit-autofill+label {
++    transform: translateY(-9px) scale(.84615)
++}
++
++.field input,
++.field textarea {
++    -moz-appearance: none;
++    appearance: none;
++    -webkit-appearance: none;
++    background: none;
++    border: none;
++    border-radius: 4px;
++    box-shadow: none;
++    box-sizing: border-box;
++    font-size: inherit;
++    height: 100%;
++    margin: 0;
++    padding: 23px 12px 9px;
++    width: 100%
++}
++
++button.primary,
++input[type=submit].primary {
++    -webkit-appearance: none;
++    -moz-appearance: none;
++    appearance: none;
++    background: #007aff;
++    border: none;
++    border-radius: 6px;
++    color: #fdfdfd;
++    display: inline-block;
++    font-size: 18px;
++    padding: 12px 24px
++}
++
++button.primary:hover,
++input[type=submit].primary:hover {
++    background: #004dc6 !important
++}
++
++button.primary:active,
++input[type=submit].primary:active {
++    background: #00298c !important
++}
++
++.rainbow {
++    -webkit-text-fill-color: transparent;
++    text-fill-color: transparent;
++    background: linear-gradient(90deg, rgba(36, 50, 45, .4) 3.69%, rgba(27, 104, 175, .4) 34.79%, rgba(173, 208, 33, .4) 67.39%, rgba(129, 255, 209, .4)), #4da7b3;
++    -webkit-background-clip: text;
++    background-clip: text;
++    font-size: 28px;
++    font-weight: 700;
++    line-height: 1.2;
++    text-align: justify
++}
++
++.rainbow a {
++    -webkit-text-decoration-color: #69b082;
++    text-decoration-color: #69b082;
++    text-decoration-thickness: 4px;
++    text-underline-offset: .094em
++}
++
++#start {
++    background-size: 169%;
++    display: grid;
++    grid-template-rows: minmax(40px, 1fr) auto minmax(32px, 1fr) auto;
++    justify-items: center;
++    min-height: 100vh;
++    overflow: hidden;
++    padding: 88px 64px 0;
++    text-align: center;
++    z-index: 6
++}
++
++#change,
++#start {
++    position: relative
++}
++
++#change {
++    white-space: nowrap
++}
++
++#change .new {
++    bottom: .9em;
++    left: 0;
++    opacity: 0;
++    position: absolute;
++    -webkit-user-select: none;
++    -moz-user-select: none;
++    -ms-user-select: none;
++    user-select: none
++}
++
++#change .old {
++    display: inline-block;
++    position: relative;
++    top: 0
++}
++
++#start>div:first-child {
++    grid-row: 2
++}
++
++#start .demo {
++    grid-row: 4;
++    margin-top: auto;
++    max-width: 1488px
++}
++
++.demo .grid {
++    display: grid;
++    grid-template-areas: "sidebar toolbar ." "sidebar video .";
++    grid-template-columns: 127fr 2814fr 27fr;
++    grid-template-rows: 169fr 924fr
++}
++
++.demo picture {
++    grid-column: 1/span 3;
++    grid-row: 1/span 2
++}
++
++.demo img,
++.demo picture {
++    -webkit-user-select: none;
++    -moz-user-select: none;
++    -ms-user-select: none;
++    user-select: none
++}
++
++.demo img {
++    box-shadow: 0 0 12px rgba(89, 85, 101, .2), 0 8px 48px rgba(89, 85, 101, .3);
++    cursor: default;
++    display: block;
++    height: auto;
++    width: 100%
++}
++
++.demo video {
++    border-top-left-radius: 5px;
++    border-top-right-radius: 5px;
++    grid-area: video;
++    height: 100%;
++    width: 100%;
++    z-index: 1
++}
++
++#social-proof {
++    padding-bottom: 12px;
++    padding-top: 80px
++}
++
++.claim {
++    text-align: center !important
++}
++
++.sps {
++    margin-inline: -120px;
++    max-width: calc(100vw + 120px);
++    overflow: hidden;
++    padding: 32px 12px;
++    position: relative
++}
++
++.sps>div {
++    box-sizing: border-box;
++    display: flex;
++    gap: 16px
++}
++
++.sps>div:not(:last-child) {
++    -webkit-margin-after: 16px;
++    margin-block-end: 16px
++}
++
++.sps>div:first-child>div:first-child {
++    margin-left: -184px
++}
++
++.sps>div:nth-child(2) {
++    margin-left: -12px
++}
++
++.user-voice {
++    background: #eff0f3;
++    border-radius: 6px;
++    box-shadow: 0 4px 12px rgba(89, 85, 101, .2);
++    display: flex;
++    flex-shrink: 0;
++    gap: 24px;
++    padding: 16px 24px;
++    width: 376px
++}
++
++.user-image {
++    border-radius: 50%;
++    height: 56px;
++    margin-top: 8px;
++    width: 56px
++}
++
++.user-voice-name {
++    font-size: 16px;
++    font-weight: 600
++}
++
++.user-voice a {
++    color: inherit !important;
++    text-decoration: none
++}
++
++#cloud-collaborative .figure {
++    max-width: 304px
++}
++
++.figure>img {
++    height: auto;
++    width: 100%
++}
++
++#powerful-templates .figure {
++    --dia-progress: 0%;
++    align-items: stretch;
++    display: flex;
++    flex-direction: column;
++    gap: 40px
++}
++
++.pages {
++    display: grid;
++    grid-template-columns: repeat(auto-fit, minmax(50px, -webkit-max-content));
++    grid-template-columns: repeat(auto-fit, minmax(50px, max-content));
++    justify-items: left;
++    max-width: 496px;
++    width: max(14vw, 290px)
++}
++
++.pages picture img {
++    height: auto;
++    width: 100%
++}
++
++.pages a {
++    filter: drop-shadow(0 4px 12px rgba(89, 85, 101, .2)) drop-shadow(0 4px 24px rgba(89, 85, 101, .3));
++    position: relative;
++    width: 180%;
++    z-index: 2
++}
++
++.pages a picture {
++    width: 100%
++}
++
++.pages a:nth-child(2) {
++    justify-self: center;
++    transform: scale(.9);
++    transform-origin: top center;
++    z-index: 1
++}
++
++.pages a:last-child {
++    justify-self: right;
++    transform: scale(.8);
++    transform-origin: top right;
++    z-index: 0
++}
++
++.left-btns button.active {
++    background-color: rgba(235, 236, 239, .8)
++}
++
++.btn-group {
++    background-color: #fdfdfd;
++    border: 1px solid #bdbfcc;
++    border-radius: 6px;
++    display: flex;
++    justify-content: stretch
++}
++
++.btn-group button {
++    border: none;
++    border-radius: 0;
++    flex-basis: 0;
++    flex-grow: 1
++}
++
++.btn-group button:first-child {
++    border-bottom-left-radius: 6px;
++    border-top-left-radius: 6px
++}
++
++.btn-group button:last-child {
++    border-bottom-right-radius: 6px;
++    border-top-right-radius: 6px
++}
++
++.btn-group button:not(:first-child) {
++    border-left: 1px solid #d7d9e0
++}
++
++.modal {
++    align-items: center;
++    background: radial-gradient(ellipse at center, rgba(0, 0, 0, .28) 0, rgba(4, 25, 37, .59) 100%);
++    bottom: 0;
++    display: flex;
++    flex-direction: column;
++    justify-content: center;
++    left: 0;
++    opacity: 0;
++    padding: 60px 30px 90px;
++    position: fixed;
++    right: 0;
++    top: 0;
++    transition: opacity .2s ease;
++    z-index: 10
++}
++
++.modal.open {
++    opacity: 1
++}
++
++.modal>div {
++    flex-direction: column;
++    max-height: 100%;
++    max-width: 100%;
++    text-align: center;
++    transform: translateY(100vh);
++    transition: transform .2s cubic-bezier(.27, .1, .07, 1.18)
++}
++
++.modal #md-prev {
++    left: 0
++}
++
++.modal #md-next {
++    right: 0
++}
++
++.modal #md-next,
++.modal #md-prev {
++    background: none;
++    border: none;
++    border-radius: 0;
++    bottom: 0;
++    color: #fdfdfd;
++    position: absolute;
++    top: 0;
++    z-index: 5
++}
++
++.modal #md-close {
++    background: rgba(25, 24, 31, .3);
++    color: #fdfdfd
++}
++
++.modal #md-close:active,
++.modal #md-next:active,
++.modal #md-prev:active {
++    background: #2b2c2d63 !important
++}
++
++.modal.open>div {
++    transform: translateY(0)
++}
++
++.modal>div img {
++    box-shadow: 1px 3px 3px -1px rgba(79, 80, 82, .61), 2px 5px 14px 3px rgba(79, 80, 82, .48);
++    display: inline-block;
++    height: auto;
++    image-rendering: high-quality;
++    margin-bottom: 16px;
++    max-height: 100%;
++    max-width: 100%;
++    width: auto
++}
++
++#powerful-templates .figure button {
++    overflow: hidden;
++    position: relative
++}
++
++#powerful-templates .figure button>span {
++    position: relative;
++    z-index: 1
++}
++
++#powerful-templates .figure button.active:before {
++    background-color: rgba(235, 236, 239, .8);
++    bottom: 0;
++    content: "";
++    left: 0;
++    position: absolute;
++    top: 0;
++    width: var(--dia-progress);
++    z-index: 0
++}
++
++#powerful-templates .figure button.past:not(:hover) {
++    background-color: rgba(235, 236, 239, .8)
++}
++
++#easy-to-learn .figure>img {
++    box-shadow: 0 4px 12px rgba(89, 85, 101, .2);
++    margin-inline: 40px;
++    max-height: 300px;
++    width: auto
++}
++
++#need-full-control>div {
++    background-color: #33323e;
++    border-radius: 32px;
++    color: #fdfdfd;
++    margin-bottom: 22px;
++    text-align: center
++}
++
++#need-full-control .top {
++    background: inherit;
++    border-radius: 32px 32px 0 0;
++    box-shadow: 0 4px 12px rgba(36, 33, 46, .2), 0 4px 24px rgba(18, 17, 21, .3);
++    padding: 48px 64px;
++    position: relative;
++    z-index: 1
++}
++
++#need-full-control h2 {
++    -webkit-margin-before: 0;
++    -webkit-margin-after: 18px;
++    margin-block-end: 18px;
++    margin-block-start: 0
++}
++
++#need-full-control .drawer {
++    font-size: 16px;
++    margin-top: -8em;
++    padding: 40px min(144px, 10vw) 52px;
++    position: relative;
++    text-align: left;
++    transition: margin-top .2s ease;
++    z-index: 0
++}
++
++#need-full-control.drawer-open .drawer {
++    margin-top: 0
++}
++
++#need-full-control .drawer ul {
++    column-count: 2;
++    column-gap: 40px
++}
++
++#need-full-control .drawer button {
++    background: #33323e;
++    border: 0;
++    bottom: -21px;
++    color: #fdfdfd;
++    left: 0;
++    margin: 0 auto;
++    max-width: 14em;
++    padding: 16px 32px;
++    position: absolute;
++    right: 0
++}
++
++#need-full-control .drawer button:active {
++    background-color: #121215 !important
++}
++
++#ready-science .figure {
++    margin: 32px auto 0;
++    max-width: 1096px;
++    overflow: hidden;
++    position: relative;
++    width: 100%
++}
++
++#ready-science .figure:before,
++.sps:before {
++    background: linear-gradient(90deg, #fdfdfd 50%, hsla(0, 0%, 99%, 0));
++    bottom: 0;
++    content: "";
++    left: 0;
++    pointer-events: none;
++    position: absolute;
++    top: 0;
++    width: 152px;
++    z-index: 1
++}
++
++#coming-soon,
++#ready-science,
++.funding {
++    text-align: center
++}
++
++#ready-science .figure:after,
++.sps:after {
++    background: linear-gradient(90deg, hsla(0, 0%, 99%, 0) 0, #fdfdfd 50%);
++    bottom: 0;
++    content: "";
++    pointer-events: none;
++    position: absolute;
++    right: 0;
++    top: 0;
++    width: 152px;
++    z-index: 1
++}
++
++#ready-science .image-slide {
++    animation: slide 30s linear infinite;
++    display: flex;
++    gap: 0;
++    transform: translateX(0);
++    width: 100%
++}
++
++#ready-science .image-slide img {
++    flex-shrink: 0;
++    height: auto;
++    margin: 0 0 0 -1px;
++    width: 100%
++}
++
++#writing-formulas {
++    align-items: center;
++    display: flex;
++    flex-direction: column;
++    text-align: center
++}
++
++#writing-formulas>* {
++    margin-bottom: 0;
++    margin-top: 0
++}
++
++#writing-formulas .figure {
++    --dia-progress: 0%;
++    align-items: center;
++    gap: 40px;
++    margin-top: 4px;
++    max-width: 872px;
++    text-align: left;
++    width: 100%
++}
++
++.arrow {
++    margin: auto 0
++}
++
++#writing-formulas code {
++    color: #19181f
++}
++
++#writing-formulas .figure ul {
++    height: 100%;
++    list-style: none;
++    margin: 0;
++    padding: 0
++}
++
++#writing-formulas .figure ul>li {
++    height: 100%
++}
++
++#writing-formulas .figure ul>li:not(.active) {
++    display: none
++}
++
++#writing-formulas .code-gallery {
++    display: flex;
++    gap: 16px;
++    width: 100%
++}
++
++#writing-formulas .figure code {
++    border: 2px solid #bdbfcc;
++    border-radius: 6px;
++    box-shadow: 0 4px 12px rgba(89, 85, 101, .2);
++    display: block;
++    padding: 16px 24px 16px 16px
++}
++
++#writing-formulas .figure .code-gallery {
++    align-items: stretch;
++    min-width: 184px
++}
++
++#writing-formulas .figure #math-code,
++#writing-formulas .figure .result {
++    flex-basis: 0;
++    flex-grow: 1
++}
++
++#writing-formulas .figure .result {
++    display: flex;
++    flex-direction: column;
++    justify-content: center
++}
++
++#writing-formulas .figure .result svg {
++    flex-grow: 1;
++    height: 100%;
++    max-width: 100%;
++    width: 100%
++}
++
++#math-res {
++    max-height: 64px
++}
++
++#math-res li {
++    align-items: flex-start;
++    display: flex;
++    flex-direction: column
++}
++
++#math-code li {
++    display: flex;
++    justify-content: right
++}
++
++#math-res ul {
++    width: 100%
++}
++
++.vertical-btns {
++    display: flex;
++    gap: 2px;
++    margin: 24px auto 0;
++    max-width: 400px
++}
++
++.vertical-btns button {
++    background: #eff0f3;
++    border: 0;
++    color: transparent;
++    flex-grow: 1;
++    height: 8px;
++    overflow: hidden;
++    padding: 0;
++    position: relative;
++    white-space: nowrap
++}
++
++.vertical-btns button.past:not(:hover),
++.vertical-btns button:active {
++    background-color: hsla(231, 8%, 48%, .8)
++}
++
++.vertical-btns button:not(:last-child) {
++    border-bottom-right-radius: 0;
++    border-top-right-radius: 0
++}
++
++.vertical-btns button:not(:first-child) {
++    border-bottom-left-radius: 0;
++    border-top-left-radius: 0
++}
++
++.vertical-btns button.active:after {
++    background-color: #8b8fa2;
++    bottom: 0;
++    content: "";
++    display: block;
++    left: 0;
++    position: absolute;
++    top: 0;
++    width: var(--dia-progress)
++}
++
++.left-btns {
++    list-style: none;
++    margin: 0;
++    padding: 0
++}
++
++.left-btns button {
++    font-size: inherit;
++    margin-bottom: 10px;
++    padding: 16px 24px;
++    text-align: left;
++    width: 100%
++}
++
++#coming-soon ul {
++    -webkit-padding-start: 0;
++    display: grid;
++    font-size: 18px;
++    gap: 0 12px;
++    grid-auto-flow: column;
++    grid-template-columns: 1fr 1fr;
++    grid-template-rows: repeat(3, auto);
++    justify-items: center;
++    list-style: none;
++    margin-inline: 64px;
++    padding-inline-start: 0
++}
++
++#coming-soon svg {
++    position: relative;
++    top: 6px
++}
++
++#coming-soon ul {
++    color: #565565
++}
++
++#why-use-typst h2 {
++    font-size: 20px;
++    margin: 0
++}
++
++#why-use-typst {
++    display: grid;
++    grid-template-areas: "head ." "buttons text";
++    grid-template-columns: minmax(225px, 3fr) 5fr;
++    grid-template-rows: auto auto
++}
++
++#why-use-typst .left-btns {
++    grid-area: buttons
++}
++
++#advantage {
++    flex-basis: 0;
++    flex-grow: 2;
++    grid-area: text;
++    max-width: 700px;
++    min-width: 200px
++}
++
++#advantage>ul {
++    list-style: none;
++    margin: 0;
++    padding: 0
++}
++
++#advantage>ul>li:not(.active) {
++    display: none
++}
++
++#advantages li ul {
++    list-style: initial
++}
++
++#advantages li ul li,
++main>ol>li,
++main>ul>li {
++    -webkit-margin-after: 4px;
++    -webkit-margin-before: 4px;
++    margin-block-end: 4px;
++    margin-block-start: 4px
++}
++
++#oss {
++    align-items: center;
++    display: flex;
++    gap: 16px
++}
++
++#oss .figure {
++    height: auto;
++    max-width: min(160px, 30vw)
++}
++
++.funding .logos {
++    display: flex;
++    flex-wrap: wrap;
++    gap: 32px;
++    justify-content: space-between
++}
++
++#funding .logos {
++    -webkit-margin-before: 32px;
++    margin-block-start: 32px
++}
++
++.funding .logos img {
++    height: 64px;
++    width: auto
++}
++
++.about section>p {
++    max-width: 800px
++}
++
++#start-about {
++    align-items: center;
++    display: flex;
++    justify-content: center;
++    min-height: 400px;
++    padding: 90px 64px 64px;
++    text-align: center
++}
++
++#start-about h1 {
++    max-width: 600px
++}
++
++.berlin {
++    background: url(/assets/images/berlin.webp) no-repeat 50% scroll;
++    background-color: #00afc6;
++    background-size: cover;
++    color: #fdfdfd
++}
++
++.no-webp-lossy .berlin {
++    background: url(/assets/images/berlin.jpg) no-repeat 50% scroll
++}
++
++#story {
++    flex-direction: column;
++    font-size: 26px;
++    line-height: 1.2;
++    text-align: justify
++}
++
++#story,
++#team-members>ul {
++    align-items: center;
++    display: flex
++}
++
++#team-members>ul {
++    -webkit-padding-start: 0;
++    gap: 56px;
++    justify-content: center;
++    list-style-type: none;
++    padding-inline-start: 0;
++    text-align: center
++}
++
++#team-members img {
++    border-radius: 100%
++}
++
++.socials {
++    -webkit-margin-before: 8px;
++    display: flex;
++    gap: 8px;
++    justify-content: center;
++    list-style: none;
++    margin-block-start: 8px;
++    padding: 0
++}
++
++.socials svg {
++    height: 24px;
++    width: 24px
++}
++
++#open-source {
++    align-items: center;
++    display: flex;
++    flex-direction: column;
++    text-align: center
++}
++
++#open-source img {
++    height: auto;
++    max-width: 256px
++}
++
++.about h1 {
++    font-size: 50px
++}
++
++.cards {
++    -webkit-padding-start: 0;
++    display: grid;
++    gap: 24px;
++    grid-template-areas: "A B" "A C" "D E";
++    grid-template-columns: repeat(2, minmax(-webkit-min-content, 504px));
++    grid-template-columns: repeat(2, minmax(min-content, 504px));
++    grid-template-rows: repeat(3, minmax(224px, -webkit-max-content));
++    grid-template-rows: repeat(3, minmax(224px, max-content));
++    justify-content: center;
++    list-style-type: none;
++    padding-inline-start: 0
++}
++
++.cards>li {
++    background-attachment: scroll;
++    background-color: #220f66;
++    background-position: top;
++    background-repeat: no-repeat;
++    background-size: cover;
++    border-radius: 16px;
++    box-sizing: border-box;
++    color: #fdfdfd;
++    display: flex;
++    flex-direction: column;
++    height: 100%;
++    justify-content: flex-end;
++    padding: 64px 32px 32px;
++    width: 100%
++}
++
++.cards>li:first-child {
++    background-color: #250c17;
++    background-image: url(/assets/images/card-bg-1-2x.webp);
++    grid-area: A
++}
++
++.no-webp-lossy .cards>li:first-child {
++    background-image: url(/assets/images/card-bg-1-2x.jpg)
++}
++
++.cards>li:nth-child(2) {
++    background-color: #2c2e30;
++    background-image: url(/assets/images/card-bg-2-2x.webp)
++}
++
++.no-webp-lossy .cards>li:nth-child(2) {
++    background-image: url(/assets/images/card-bg-2-2x.jpg)
++}
++
++.cards>li:nth-child(3) {
++    background-color: #000533;
++    background-image: url(/assets/images/card-bg-5-2x.webp)
++}
++
++.no-webp-lossy .cards>li:nth-child(3) {
++    background-image: url(/assets/images/card-bg-5-2x.jpg)
++}
++
++.cards>li:nth-child(4) {
++    background-color: #200c30;
++    background-image: url(/assets/images/card-bg-3-2x.webp)
++}
++
++.no-webp-lossy .cards>li:nth-child(4) {
++    background-image: url(/assets/images/card-bg-3-2x.jpg)
++}
++
++.cards>li:nth-child(5) {
++    background-color: #1d110c;
++    background-image: url(/assets/images/card-bg-4-2x.webp)
++}
++
++.no-webp-lossy .cards>li:nth-child(5) {
++    background-image: url(/assets/images/card-bg-4-2x.jpg)
++}
++
++#values h2 {
++    margin: 0 0 8px
++}
++
++#values p {
++    margin: 0
++}
++
++#supported-by {
++    align-items: center;
++    display: flex;
++    flex-direction: column;
++    text-align: center
++}
++
++#supported-by>a>img {
++    max-height: 80px;
++    width: auto
++}
++
++#supported-by>p {
++    -webkit-margin-after: 32px;
++    margin-block-end: 32px
++}
++
++.contact-intro {
++    display: flex;
++    gap: 32px;
++    margin: 32px 0
++}
++
++.contact-intro img {
++    align-self: center;
++    border-radius: 100%;
++    height: auto;
++    max-height: 5rem;
++    max-width: 5rem;
++    width: auto
++}
++
++.contact-intro strong {
++    display: block;
++    font-size: 24px
++}
++
++.contact-form {
++    display: flex;
++    flex-direction: column;
++    font-size: 16px;
++    gap: 10px;
++    width: 100%
++}
++
++.contact-form .submit-row {
++    text-align: right
++}
++
++.center-icon {
++    display: flex;
++    justify-content: center;
++    margin: 32px 0
++}
++
++.full-width {
++    box-sizing: border-box;
++    width: 100%
++}
++
++.hidden {
++    display: none !important
++}
++
++.inline>* {
++    display: inline
++}
++
++.only-mini,
++.only-mobile {
++    display: none
++}
++
++.flex-between {
++    display: flex;
++    justify-content: space-between
++}
++
++.flipped {
++    transform: rotateY(180deg)
++}
++
++.narrow {
++    max-width: 700px
++}
++
++.previewed-code {
++    -webkit-margin-after: 24px;
++    display: flex;
++    flex-wrap: wrap;
++    gap: 12px;
++    margin-block-end: 24px
++}
++
++div+.previewed-code,
++p+.previewed-code {
++    -webkit-margin-before: 24px;
++    margin-block-start: 24px
++}
++
++.previewed-code>* {
++    flex-basis: 0;
++    flex-grow: 1;
++    min-width: 250px
++}
++
++.previewed-code pre {
++    overflow-x: auto
++}
++
++.previewed-code pre.big {
++    box-sizing: border-box;
++    min-width: 100%
++}
++
++.preview {
++    align-items: center;
++    background: #e4e5ea;
++    border-radius: 6px;
++    display: flex;
++    flex-direction: column;
++    gap: 16px;
++    justify-content: center;
++    padding: 12px 16px
++}
++
++.preview>* {
++    background: #fff;
++    box-shadow: 0 4px 12px rgba(89, 85, 101, .2);
++    height: auto;
++    max-height: 100%;
++    max-width: 100%;
++    width: auto
++}
++
++.page-end-buttons {
++    -webkit-margin-before: 48px;
++    display: flex;
++    flex-wrap: wrap;
++    gap: 12px;
++    margin-block-start: 48px
++}
++
++.page-end-buttons a {
++    align-items: center;
++    border: 1px solid #bdbfcc;
++    border-radius: 6px;
++    color: inherit !important;
++    display: block;
++    display: flex;
++    flex-basis: 0;
++    flex-grow: 1;
++    gap: 8px;
++    gap: 12px;
++    min-width: 160px;
++    padding: 16px;
++    text-decoration: none
++}
++
++.page-end-buttons a:active {
++    background: #e4e5ea
++}
++
++.page-end-buttons a:hover {
++    background: #f5f5f5
++}
++
++.page-end-buttons img {
++    height: 32px;
++    width: 32px
++}
++
++.page-end-buttons .previous img {
++    transform: rotate(180deg)
++}
++
++.page-end-buttons .next {
++    flex-direction: row-reverse
++}
++
++.page-end-buttons span {
++    display: block
++}
++
++.page-end-buttons .page-title {
++    font-size: 18px
++}
++
++.page-end-buttons .hint {
++    color: #565565;
++    font-size: 12px;
++    font-weight: 600
++}
++
++.code-definition,
++pre {
++    border-radius: 6px;
++    box-shadow: 0 4px 12px rgba(89, 85, 101, .2);
++    margin: 0;
++    padding: 16px
++}
++
++.typ-comment {
++    color: #8a8a8a
++}
++
++.typ-escape {
++    color: #1d6c76
++}
++
++.typ-strong {
++    font-weight: 700
++}
++
++.typ-emph {
++    font-style: italic
++}
++
++.typ-link {
++    text-decoration: underline
++}
++
++.typ-raw {
++    color: #818181
++}
++
++.typ-label,
++.typ-ref {
++    color: #1d6c76
++}
++
++.typ-heading {
++    font-weight: 700;
++    text-decoration: underline
++}
++
++.typ-marker {
++    color: #8b41b1
++}
++
++.typ-term {
++    font-weight: 700
++}
++
++.typ-math-delim {
++    color: #298e0d
++}
++
++.typ-math-op {
++    color: #1d6c76
++}
++
++.typ-key {
++    color: #d73a49
++}
++
++.typ-num {
++    color: #b60157
++}
++
++.typ-str {
++    color: #298e0d
++}
++
++.typ-func {
++    color: #4b69c6
++}
++
++.typ-pol {
++    color: #8b41b1
++}
++
++@media screen and (min-width:769px) {
++    #cloud-collaborative .figure {
++        position: relative;
++        top: -20px
++    }
++}
++
++@media screen and (max-width:1360px) {
++
++    #privacy ol,
++    .number-discs {
++        padding-left: 3rem
++    }
++
++    .funding .logos {
++        display: grid;
++        grid-template-columns: repeat(3, 1fr);
++        justify-items: center;
++        padding-inline: 32px
++    }
++
++    .funding .logos img {
++        max-width: 100%
++    }
++
++    .funding .logos>:nth-child(3n) {
++        justify-self: end
++    }
++
++    .funding .logos>:nth-child(3n+1) {
++        justify-self: start
++    }
++}
++
++@media screen and (max-width:768px) {
++
++    body,
++    html {
++        font-size: 16px
++    }
++
++    body.landing {
++        font-size: 17px
++    }
++
++    .landing h1 {
++        font-size: 50px;
++        line-height: 1.1
++    }
++
++    .landing h2 {
++        font-size: 28px
++    }
++
++    .about h1 {
++        font-size: 36px
++    }
++
++    header>div {
++        padding: 24px
++    }
++
++    header.fixed>div {
++        padding: 12px 24px
++    }
++
++    .banner button {
++        position: static
++    }
++
++    section {
++        padding: 40px 24px
++    }
++
++    main {
++        padding: 0 24px
++    }
++
++    .only-mobile {
++        display: initial
++    }
++
++    .hidden-mobile {
++        display: none
++    }
++
++    .banner {
++        font-size: 15px
++    }
++
++    .number-discs {
++        display: block
++    }
++
++    .number-discs>li>:first-child {
++        -webkit-margin-before: 24px;
++        -webkit-margin-after: 8px;
++        margin-block-end: 8px;
++        margin-block-start: 24px
++    }
++
++    .contact-intro {
++        flex-direction: column
++    }
++
++    .contact-intro img,
++    .contact-intro picture {
++        align-self: center;
++        max-height: 7rem;
++        max-width: 7rem
++    }
++
++    .contact-intro>div {
++        text-align: center
++    }
++
++    #start {
++        grid-template-rows: minmax(24px, 1fr) auto minmax(24px, 1fr) auto;
++        padding: 80px 0 0;
++        position: relative
++    }
++
++    #cta,
++    #start {
++        background-size: 390%
++    }
++
++    #start>div:first-child {
++        padding: 0 24px
++    }
++
++    #change {
++        line-height: inherit
++    }
++
++    .cta-field {
++        flex-direction: column
++    }
++
++    .cta-field input:first-child {
++        border-radius: 8px 8px 0 0
++    }
++
++    .cta-field input:last-child {
++        border-left: 0;
++        border-radius: 0 0 8px 8px;
++        border-top: 2px solid #0a3649;
++        text-align: left
++    }
++
++    .demo {
++        box-sizing: border-box;
++        justify-content: left;
++        overflow-x: scroll;
++        padding: 30px 0 0;
++        width: 100%
++    }
++
++    .demo .grid {
++        padding: 0 24px;
++        width: calc(100vw + 200px)
++    }
++
++    .flex-between {
++        flex-direction: column
++    }
++
++    .sps {
++        margin-inline: 0;
++        width: auto
++    }
++
++    .sps:after,
++    .sps:before {
++        display: none
++    }
++
++    .sps>div {
++        flex-direction: column;
++        margin-left: 0 !important
++    }
++
++    .user-voice {
++        flex-grow: 1;
++        gap: 16px;
++        width: auto
++    }
++
++    .user-image {
++        height: 48px;
++        margin-top: 4px;
++        width: 48px
++    }
++
++    #cloud-collaborative {
++        flex-direction: column-reverse
++    }
++
++    #cloud-collaborative .figure {
++        display: flex;
++        justify-content: center;
++        max-width: unset;
++        width: 100%
++    }
++
++    #cloud-collaborative .figure>img {
++        max-width: 350px
++    }
++
++    .pages {
++        margin-inline: auto
++    }
++
++    #why-use-typst {
++        display: flex;
++        flex-direction: column
++    }
++
++    #easy-to-learn .figure {
++        margin-inline: auto
++    }
++
++    #easy-to-learn .figure>img {
++        margin-inline: 0
++    }
++
++    #need-full-control {
++        padding: 40px 16px
++    }
++
++    #need-full-control .top {
++        padding: 40px 24px 30px
++    }
++
++    #need-full-control .drawer {
++        font-size: 16px;
++        margin-top: -11em;
++        padding: 24px min(180px, 5vw) 32px
++    }
++
++    #need-full-control .drawer ul:first-child {
++        column-count: 1;
++        padding-left: 24px
++    }
++
++    #ready-science .figure {
++        display: flex
++    }
++
++    #ready-science .figure:after,
++    #ready-science .figure:before {
++        width: 64px
++    }
++
++    #ready-science .image-slide {
++        animation-name: slide-mobile;
++        width: 160%
++    }
++
++    #ready-science .image-slide img {
++        width: 160%
++    }
++
++    #writing-formulas .figure {
++        gap: 16px
++    }
++
++    #writing-formulas .figure .code-gallery {
++        align-items: center;
++        flex-direction: column
++    }
++
++    #writing-formulas .figure ul {
++        margin: 0 auto
++    }
++
++    #writing-formulas .arrow {
++        transform: rotate(90deg)
++    }
++
++    #writing-formulas .figure #math-code {
++        flex-basis: auto
++    }
++
++    #writing-formulas .figure .result {
++        align-items: center;
++        flex-grow: 1;
++        text-align: center;
++        width: 100%
++    }
++
++    #writing-formulas .figure .result svg {
++        display: inline-block;
++        margin-bottom: 8px;
++        min-height: 64px;
++        width: auto
++    }
++
++    #coming-soon ul {
++        margin-inline: 0
++    }
++
++    #math-res {
++        width: 100%
++    }
++
++    #math-res li {
++        display: initial;
++        text-align: center;
++        width: 100%
++    }
++
++    code .mobile-indented {
++        display: block;
++        margin-left: 2em
++    }
++
++    .rainbow {
++        font-size: 28px;
++        text-align: initial
++    }
++
++    .rainbow a {
++        text-decoration-thickness: 3px
++    }
++
++    #cta {
++        margin: 120px 18px 80px;
++        padding: 64px 32px
++    }
++
++    #story {
++        font-size: 22px;
++        text-align: initial
++    }
++
++    #team-members>ul {
++        flex-direction: column;
++        gap: 56px
++    }
++
++    .cards {
++        align-items: center;
++        display: flex;
++        flex-direction: column
++    }
++
++    .cards li {
++        max-width: 504px
++    }
++
++    .cards li:first-child {
++        min-height: 352px
++    }
++
++    #oss,
++    body>footer {
++        flex-direction: column
++    }
++
++    body>footer {
++        align-items: start;
++        font-size: 14px;
++        padding: 120px 24px 40px
++    }
++
++    body>footer>:last-child {
++        text-align: left
++    }
++
++    .funding .logos {
++        grid-template-columns: repeat(2, 1fr);
++        justify-items: start;
++        padding-inline: 64px
++    }
++
++    .funding .logos>:nth-child(3n),
++    .funding .logos>:nth-child(3n+1) {
++        justify-self: unset
++    }
++
++    .funding .logos>:nth-child(2n) {
++        justify-self: end
++    }
++}
++
++@media screen and (max-width:600px) {
++    header .beta-pill {
++        display: none
++    }
++}
++
++@media screen and (max-width:512px) {
++    header .social {
++        display: none
++    }
++}
++
++@media screen and (max-width:365px) {
++    .secondary {
++        display: none
++    }
++
++    .only-mini {
++        display: initial
++    }
++
++    .hidden-mini {
++        display: none
++    }
++
++    .previewed-code>* {
++        min-width: 120px
++    }
++
++    #coming-soon ul {
++        grid-auto-flow: row;
++        grid-template-columns: auto
++    }
++
++    .banner+header {
++        top: 61px
++    }
++
++    .pages {
++        display: block;
++        width: 100%
++    }
++
++    .pages>a:not(:first-child) {
++        display: none
++    }
++
++    .funding .logos {
++        gap: max(32px, 10vw);
++        padding-inline: 8px
++    }
++}
++
++@media (prefers-reduced-motion) {
++    #ready-science .image-slide {
++        animation: none
++    }
++
++    #change .new {
++        bottom: .106em
++    }
++
++    #start video {
++        display: none
++    }
++}
++
++@media (prefers-contrast:more) {
++    .rainbow {
++        -webkit-text-fill-color: unset;
++        text-fill-color: unset;
++        background-clip: unset;
++        background: none
++    }
++
++    .rainbow a {
++        -webkit-text-decoration-color: unset;
++        text-decoration-color: unset
++    }
++
++    input:-ms-input-placeholder {
++        color: #21212a;
++        opacity: .8
++    }
++
++    input::placeholder {
++        color: #21212a;
++        opacity: .8
++    }
++
++    .field {
++        border: 1px solid #33323e
++    }
++
++    .field label {
++        color: #21212a
++    }
++
++    .blurred {
++        background-color: #11566c
++    }
++
++    .cards>li {
++        background-image: none !important
++    }
++}
+\ No newline at end of file
+diff --git a/crates/typst-docs/public/styles/docs.css b/crates/typst-docs/public/styles/docs.css
+new file mode 100644
+index 00000000..f7d29a28
+--- /dev/null
++++ b/crates/typst-docs/public/styles/docs.css
+@@ -0,0 +1,1463 @@
++@font-face {
++    font-display: swap;
++    font-family: Cascadia Mono;
++    font-weight: 700;
++    src: local("CascadiaMono-Bold"), url(/assets/fonts/CascadiaMono-Bold.woff2) format("woff2"), url(/assets/fonts/CascadiaMono-Bold.woff) format("woff"), url(/assets/fonts/CascadiaMono-Bold.ttf) format("truetype")
++}
++
++@font-face {
++    font-display: swap;
++    font-family: NewComputerModernMath;
++    font-weight: 400;
++    src: local("NewComputerModernMath-Regular"), local("NewComputerModernMath"), url(/assets/fonts/NewCMMath-Regular.woff2) format("woff2"), url(/assets/fonts/NewCMMath-Regular.woff) format("woff"), url(/assets/fonts/NewCMMath-Regular.otf) format("truetype")
++}
++
++body.docs {
++    font-size: 16px
++}
++
++body.docs>.main-grid {
++    max-width: unset;
++    padding: 32px
++}
++
++h3 {
++    font-size: 19px
++}
++
++h1 small,
++h2 small {
++    color: #565565;
++    display: inline-flex;
++    font-size: 14px;
++    font-style: italic;
++    gap: 8px
++}
++
++h1 small {
++    transform: translateY(-4px)
++}
++
++h2 small {
++    transform: translateY(-2px)
++}
++
++h1 code,
++h2 code,
++h3 code,
++h4 code {
++    font-size: unset
++}
++
++h3 small,
++h4 small {
++    color: #565565;
++    display: inline-flex;
++    font-size: 12px;
++    font-style: italic;
++    gap: 4px
++}
++
++h3 small svg {
++    margin-bottom: -1px
++}
++
++h2,
++h3,
++h4 {
++    -webkit-margin-before: 32px;
++    align-items: baseline;
++    display: flex;
++    flex-wrap: wrap;
++    font-weight: 600;
++    gap: 8px 32px;
++    margin-block-start: 32px
++}
++
++h2 {
++    gap: 8px
++}
++
++h3 {
++    -webkit-margin-after: 12px;
++    margin-block-end: 12px
++}
++
++h2+h3,
++h2+h3.scoped-function {
++    -webkit-margin-before: 0;
++    margin-block-start: 0
++}
++
++.scoped-function {
++    -webkit-margin-before: 56px;
++    font-size: 20px;
++    margin-block-start: 56px;
++    position: relative
++}
++
++h4 {
++    -webkit-margin-before: 24px;
++    -webkit-margin-after: 12px;
++    margin-block-end: 12px;
++    margin-block-start: 24px
++}
++
++h2 .additional-info,
++h3 .additional-info,
++h4 .additional-info {
++    align-items: baseline;
++    display: flex;
++    gap: 4px 12px
++}
++
++h2 .additional-info .pill+.pill,
++h3 .additional-info .pill+.pill,
++h4 .additional-info .pill+.pill {
++    -webkit-margin-start: 0;
++    margin-inline-start: 0
++}
++
++h2 .additional-info>div>small,
++h3 .additional-info>div>small,
++h4 .additional-info>div>small {
++    font-style: normal
++}
++
++h3 code+.pill,
++h4 code+.pill {
++    -webkit-margin-start: 16px;
++    margin-inline-start: 16px
++}
++
++:not(h2)+.method-head {
++    -webkit-margin-before: 48px;
++    margin-block-start: 48px
++}
++
++kbd {
++    background-color: #eee;
++    border: 1px solid #b4b4b4;
++    border-radius: 4px;
++    box-shadow: 0 1px 1px rgba(0, 0, 0, .2), inset 0 2px 0 0 hsla(0, 0%, 100%, .7);
++    display: inline-block;
++    font-size: .85em;
++    line-height: 1;
++    padding: 2px 4px;
++    white-space: nowrap
++}
++
++main table thead {
++    border-bottom: 1px solid #bdbfcc;
++    font-weight: 600;
++    text-align: left
++}
++
++main table td,
++main table th {
++    padding: 4px 8px
++}
++
++main table {
++    border-collapse: collapse;
++    margin-block: 16px;
++    width: 100%
++}
++
++main table td p:first-child {
++    -webkit-margin-before: 0;
++    margin-block-start: 0
++}
++
++main table td p:last-child {
++    -webkit-margin-after: 0;
++    margin-block-end: 0
++}
++
++.relative {
++    overflow-x: auto;
++    position: relative;
++    width: 100%
++}
++
++main>img,
++main>p>img {
++    margin-block: 8px;
++    max-width: 100%
++}
++
++p>code {
++    white-space: nowrap
++}
++
++li p+ol,
++li p+ul {
++    -webkit-margin-before: -.5rem;
++    margin-block-start: -.5rem
++}
++
++ul ul {
++    -webkit-padding-start: 24px;
++    padding-inline-start: 24px
++}
++
++.code-definition {
++    overflow-x: auto;
++    white-space: nowrap
++}
++
++.code-definition+.previewed-code {
++    -webkit-margin-before: 16px;
++    margin-block-start: 16px
++}
++
++.code-definition+.folding-example {
++    -webkit-margin-before: 8px;
++    margin-block-start: 8px
++}
++
++.code-definition+h4,
++.previewed-code+h4 {
++    -webkit-margin-before: 28px;
++    margin-block-start: 28px
++}
++
++main>pre {
++    margin-block: 24px
++}
++
++nav .title-row svg {
++    color: #239dad
++}
++
++nav>button.close {
++    background: none;
++    border: none;
++    position: absolute;
++    right: 8px;
++    top: 24px
++}
++
++button.hamburger {
++    -webkit-appearance: none;
++    -moz-appearance: none;
++    appearance: none;
++    background: none;
++    border: none;
++    border-radius: 4px;
++    box-sizing: content-box;
++    display: none;
++    height: 16px;
++    padding: 8px;
++    width: 16px
++}
++
++header>div>.logo-box {
++    align-items: center;
++    display: flex !important;
++    gap: 32px;
++    text-decoration: none
++}
++
++header>div>.logo-box span,
++nav .title-row span {
++    color: #565565;
++    display: block;
++    font-size: 18px;
++    padding-bottom: 4px
++}
++
++#page-overview {
++    align-self: start;
++    box-sizing: border-box;
++    color: #565565;
++    font-weight: 600;
++    margin-top: 64px;
++    max-height: calc(100vh - 24px);
++    overflow: hidden auto;
++    position: -webkit-sticky;
++    position: sticky;
++    top: 24px
++}
++
++nav.folding {
++    -webkit-padding-end: 4px;
++    padding-inline-end: 4px
++}
++
++nav.folding .title-row {
++    display: none
++}
++
++nav.folding ul a {
++    border-radius: 6px;
++    display: block;
++    padding: 2.5px 16px 2.5px 8px
++}
++
++nav.folding li {
++    position: relative
++}
++
++nav.folding li>button {
++    background: #fdfdfd;
++    border: 0;
++    border-radius: 5px;
++    display: block;
++    height: 24px;
++    padding: 4px;
++    position: absolute;
++    right: 1px;
++    top: 1px;
++    width: 24px
++}
++
++nav.folding li[aria-expanded=true]>button {
++    background: #eff0f3
++}
++
++nav.folding li li:last-child {
++    -webkit-margin-after: 8px;
++    margin-block-end: 8px
++}
++
++nav.folding>ul>li>ul>li:last-child {
++    -webkit-margin-after: 12px;
++    margin-block-end: 12px
++}
++
++@media (hover:hover) {
++    nav.folding li>button {
++        display: none
++    }
++}
++
++nav.folding ul.animated,
++nav.folding ul.animated ul {
++    transition: max-height .2s ease, opacity .2s ease
++}
++
++@media (prefers-reduced-motion) {
++    nav.folding.animated {
++        transition: none
++    }
++}
++
++nav.folding li>button:hover {
++    background: #e4e5ea
++}
++
++nav.folding li>a:focus-visible,
++nav.folding li>button:focus-visible {
++    outline: 2px solid #007aff80
++}
++
++nav.folding li>button:active {
++    background: #d7d9e0
++}
++
++nav.folding li:hover>button,
++nav.folding li>button:focus {
++    display: block
++}
++
++nav.folding li.root:has(a:active)>button,
++nav.folding li.root:has(a:focus)>button {
++    display: block
++}
++
++nav.folding li[aria-expanded=true]>button {
++    display: block;
++    transform: rotate(90deg)
++}
++
++nav.folding li[aria-expanded=true]>a {
++    background: #eff0f3
++}
++
++nav.folding a[aria-current=page] {
++    color: #11566c;
++    font-weight: 600;
++    position: relative
++}
++
++nav.folding a[aria-current=page]:after {
++    background: #11566c;
++    border-radius: 50%;
++    content: "";
++    height: 4px;
++    margin-block: auto;
++    position: absolute;
++    right: 10px;
++    top: 11px;
++    width: 4px
++}
++
++nav.folding .category {
++    color: #565565;
++    font-size: 10px;
++    font-weight: 600;
++    padding: 8px 8px 0;
++    text-transform: uppercase
++}
++
++nav.folding .category,
++nav.folding a {
++    -webkit-margin-after: 4px;
++    margin-block-end: 4px
++}
++
++nav.folding>ul>li>a {
++    -webkit-margin-after: 12px;
++    margin-block-end: 12px
++}
++
++.search {
++    border-radius: 4px;
++    display: flex;
++    position: relative
++}
++
++.search>img {
++    left: 8px;
++    position: absolute;
++    top: 7px
++}
++
++.search>input {
++    -webkit-appearance: none;
++    -moz-appearance: none;
++    appearance: none;
++    background: #fdfdfd;
++    border: 1px solid #bdbfcc;
++    border-radius: 4px;
++    box-sizing: border-box;
++    color: inherit;
++    font-family: inherit;
++    font-size: 14px;
++    line-height: 1.5;
++    padding: 4px 0 4px 28px;
++    width: 100%
++}
++
++.search>input::-webkit-search-cancel-button {
++    display: none
++}
++
++.search>input:focus {
++    box-shadow: inset 0 0 0 2px #007aff;
++    outline: none
++}
++
++.search>input:focus,
++.search>input:focus-visible {
++    box-shadow: none
++}
++
++.search>input:focus-visible {
++    box-shadow: inset 0 0 0 2px #007aff;
++    outline: none
++}
++
++#page-overview {
++    -webkit-padding-start: 4px;
++    padding-inline-start: 4px
++}
++
++#page-overview strong {
++    text-decoration: underline;
++    text-transform: uppercase
++}
++
++#page-overview ul,
++nav.folding ul {
++    -webkit-padding-start: 16px;
++    list-style: none;
++    padding-inline-start: 16px
++}
++
++#page-overview>ul,
++nav.folding>ul {
++    -webkit-padding-start: 0;
++    padding-inline-start: 0
++}
++
++#page-overview>ul>li {
++    -webkit-margin-after: 4px;
++    margin-block-end: 4px
++}
++
++#page-overview li[aria-current=true]>a {
++    color: #11566c
++}
++
++.main-grid {
++    display: grid;
++    gap: 36px;
++    grid-template-columns: minmax(auto, 184px) minmax(auto, 800px) minmax(auto, 144px);
++    justify-content: center
++}
++
++.no-outline .main-grid {
++    grid-template-columns: minmax(auto, 184px) minmax(auto, 800px)
++}
++
++h1 {
++    align-items: baseline;
++    display: flex;
++    gap: 16px
++}
++
++h1 .pill {
++    border-radius: 12px;
++    font-size: 34px;
++    padding: 4px 12px
++}
++
++.show-pill {
++    background: #004dc6;
++    border-radius: 4px;
++    color: #fdfdfd;
++    font-size: 12px;
++    font-weight: 400;
++    margin-top: 1.19em;
++    padding: 2px 8px
++}
++
++.info-box {
++    background: #e8f9ff;
++    border: 1px solid #007aff;
++    border-radius: 6px;
++    padding: 12px 16px 8px
++}
++
++.info-box:before {
++    -webkit-margin-after: 8px;
++    color: #001666;
++    content: "Info";
++    display: block;
++    font-size: 14px;
++    font-weight: 600;
++    margin-block-end: 8px;
++    text-align: left;
++    text-transform: uppercase
++}
++
++.breadcrumbs {
++    align-items: center;
++    display: flex;
++    gap: 4px;
++    list-style: none;
++    padding: 0;
++    text-decoration: none
++}
++
++.breadcrumbs>* {
++    display: block
++}
++
++.breadcrumbs .root {
++    background: #eff0f3;
++    border-radius: 6px;
++    box-sizing: border-box;
++    display: block;
++    display: flex;
++    height: 24px;
++    padding: 4px;
++    width: 24px
++}
++
++.breadcrumbs a:link {
++    color: inherit;
++    text-decoration: inherit
++}
++
++.breadcrumbs a:active,
++.breadcrumbs a:focus,
++.breadcrumbs a:hover {
++    text-decoration: underline
++}
++
++.breadcrumbs .root:has(a:focus),
++.breadcrumbs .root:hover {
++    background: #e4e5ea
++}
++
++.breadcrumbs .root:has(a:active) {
++    background: #d7d9e0
++}
++
++.breadcrumbs li>img {
++    margin-bottom: -3px
++}
++
++.tooltip-context {
++    position: relative
++}
++
++div[role=tooltip] {
++    background: #eff0f3;
++    border-radius: 6px;
++    box-shadow: 0 4px 12px rgba(89, 85, 101, .2), 0 4px 24px rgba(89, 85, 101, .3);
++    box-sizing: border-box;
++    color: #19181f;
++    display: none;
++    font-size: 14px;
++    font-style: normal;
++    font-weight: 400;
++    left: -120px;
++    opacity: 0;
++    padding: 12px;
++    pointer-events: none;
++    position: absolute;
++    top: 26px;
++    transition: opacity .1s ease;
++    width: 256px;
++    z-index: 1
++}
++
++h2 div[role=tooltip] {
++    top: 36px
++}
++
++div[role=tooltip]:not(.mobile):after {
++    border: 8px solid transparent;
++    border-bottom-color: #eff0f3;
++    border-top: 0;
++    content: "";
++    height: 0;
++    left: 50%;
++    margin-left: -8px;
++    margin-top: -8px;
++    position: absolute;
++    top: 0;
++    width: 0
++}
++
++main>ul {
++    -webkit-padding-start: 40px;
++    margin-block: 16px;
++    padding-block: 0;
++    padding-inline-start: 40px
++}
++
++.arguments {
++    margin-left: 1.235em;
++    margin-block: 4px
++}
++
++.arguments a {
++    color: inherit !important;
++    text-decoration: none
++}
++
++.arguments .overview-param {
++    display: block
++}
++
++.arguments>:not(:last-child) {
++    -webkit-margin-after: 4px;
++    margin-block-end: 4px
++}
++
++.single-arg .arguments {
++    display: inline;
++    margin-left: 0;
++    margin-block: 0
++}
++
++.single-arg .arguments .overview-param {
++    align-items: baseline;
++    display: inline-flex;
++    flex-wrap: wrap;
++    gap: 4px;
++    margin-inline: 2px
++}
++
++.single-arg .arguments .pill+.pill {
++    -webkit-margin-start: 0;
++    margin-inline-start: 0
++}
++
++.pill {
++    border-radius: 4px;
++    display: inline-block;
++    font-family: Cascadia Mono, Courier New, Courier, monospace;
++    font-size: 14px;
++    font-weight: 400;
++    padding: 2px 4px;
++    white-space: nowrap
++}
++
++a.pill {
++    color: inherit !important;
++    text-decoration: none !important
++}
++
++.pill+.pill {
++    -webkit-margin-start: 4px;
++    margin-inline-start: 4px
++}
++
++.pill-con {
++    background: #a6ebe6
++}
++
++.pill-bool {
++    background: #ffedc1
++}
++
++.pill-str {
++    background: #d1ffe2
++}
++
++.pill-kw {
++    background: #ffcbc4
++}
++
++.pill-num {
++    background: #e7d9ff
++}
++
++.pill-obj {
++    background: #eff0f3
++}
++
++.pill-fn {
++    background: #f9dfff
++}
++
++.pill-lbl {
++    background: #a6eaff
++}
++
++.pill-col {
++    background: #7cd5ff;
++    background: linear-gradient(83deg, #7cd5ff, #a6fbca 33%, #fff37c 66%, #ffa49d)
++}
++
++.type-args li p {
++    -webkit-margin-before: 0;
++    margin-block-start: 0
++}
++
++.type-args li p:last-child {
++    -webkit-margin-after: 0;
++    margin-block-end: 0
++}
++
++.subgridded li:before,
++.type-args li:before {
++    -webkit-padding-end: .52em;
++    content: "–";
++    padding-inline-end: .52em
++}
++
++.type-args-multiple {
++    padding-top: 0 !important
++}
++
++.type-args-multiple>code {
++    font-size: 14px;
++    line-height: 1.3;
++    white-space: nowrap
++}
++
++main>ul>li::marker {
++    content: "–   "
++}
++
++@supports (grid-template-columns:subgrid) {
++
++    .subgridded,
++    .type-args {
++        -webkit-padding-start: 32px;
++        display: grid;
++        padding-inline-start: 32px;
++        padding: 0
++    }
++
++    .type-args {
++        -webkit-padding-start: 8px;
++        column-gap: 4px;
++        grid-template-columns: 28px minmax(64px, -webkit-min-content) auto;
++        grid-template-columns: 28px minmax(64px, min-content) auto;
++        padding-inline-start: 8px
++    }
++
++    .subgridded {
++        column-gap: 8px;
++        grid-template-columns: 28px minmax(80px, -webkit-min-content) auto;
++        grid-template-columns: 28px minmax(80px, min-content) auto
++    }
++
++    .subgridded li,
++    .type-args li {
++        display: grid;
++        grid-column: 1/4;
++        grid-template-columns: subgrid
++    }
++
++    .subgridded li {
++        margin-block: 2px
++    }
++
++    .type-args li>* {
++        grid-column: 2/4
++    }
++
++    .type-args .break-box {
++        display: grid;
++        grid-template-columns: subgrid
++    }
++
++    .subgridded li:before,
++    .type-args li:before {
++        grid-column: 1;
++        text-align: right
++    }
++
++    .type-args li .break-box>:nth-child(2) {
++        grid-column: 2
++    }
++
++    .subgridded li>:nth-child(2) {
++        grid-column: 3
++    }
++
++    .type-args li .break-box>:first-child {
++        -webkit-margin-end: 8px;
++        grid-column: 1;
++        margin-inline-end: 8px
++    }
++
++    .subgridded li>:first-child {
++        -webkit-margin-end: 8px;
++        grid-column: 2;
++        margin-inline-end: 8px
++    }
++}
++
++@supports not (grid-template-columns:subgrid) {
++
++    .subgridded,
++    .type-args {
++        -webkit-padding-start: 18px;
++        padding-inline-start: 18px
++    }
++
++    .type-args li .break-box>:first-child {
++        min-width: 96px
++    }
++
++    .subgridded li>:first-child {
++        min-width: 80px
++    }
++
++    .subgridded li:before,
++    .type-args li:before {
++        -webkit-padding-end: 12px;
++        content: "–";
++        padding-inline-end: 12px
++    }
++
++    .type-args li {
++        display: flex
++    }
++
++    .subgridded li,
++    .type-args li .break-box {
++        align-items: baseline;
++        display: flex;
++        gap: 4px 16px
++    }
++
++    .type-args .multiple {
++        display: list-item
++    }
++
++    .type-args .multiple:before {
++        content: none
++    }
++
++    .subgridded li {
++        gap: 12px
++    }
++
++    .type-args li:not(:last-child) {
++        -webkit-margin-after: 8px;
++        margin-block-end: 8px
++    }
++}
++
++.folding-example summary {
++    border-radius: 6px;
++    color: #565565;
++    cursor: pointer;
++    display: inline-flex;
++    font-size: 13px;
++    gap: 8px;
++    padding: 8px 8px 8px 0;
++    transition: background-color .1s ease;
++    -webkit-user-select: none;
++    -moz-user-select: none;
++    -ms-user-select: none;
++    user-select: none
++}
++
++.folding-example summary:active {
++    background-color: #d7d9e0
++}
++
++.folding-example summary::-webkit-details-marker,
++.folding-example summary::marker {
++    content: "";
++    display: none
++}
++
++.folding-example summary img {
++    transition: transform .2s ease
++}
++
++.folding-example[open] summary img {
++    transform: rotate(90deg)
++}
++
++.folding {
++    margin: 6px -12px -12px;
++    opacity: 1;
++    padding: 12px;
++    transition: max-height .2s ease, opacity .2s ease
++}
++
++.search-results {
++    border-bottom: 1px solid #565565;
++    padding-bottom: 16px
++}
++
++.search-results:before {
++    -webkit-margin-start: 8px;
++    -webkit-margin-after: 16px;
++    color: #565565;
++    content: "Results";
++    display: block;
++    font-weight: 600;
++    margin-block-end: 16px;
++    margin-inline-start: 8px
++}
++
++.search-results .type {
++    -webkit-margin-start: 8px;
++    color: #565565;
++    font-size: 12px;
++    font-weight: 600;
++    margin-inline-start: 8px;
++    text-transform: uppercase
++}
++
++.search-results a {
++    -webkit-margin-after: 4px !important;
++    margin-block-end: 4px !important
++}
++
++dl {
++    -webkit-padding-start: 32px;
++    margin-block: 16px;
++    padding-inline-start: 32px
++}
++
++dt code {
++    font-size: 19px
++}
++
++dt code+.pill {
++    -webkit-margin-start: 32px;
++    margin-inline-start: 32px
++}
++
++dd,
++dt {
++    -webkit-margin-after: 16px;
++    margin-block-end: 16px;
++    margin-inline: 0
++}
++
++.docs-overview .page-end-buttons {
++    display: none
++}
++
++.doc-categories {
++    display: flex;
++    flex-wrap: wrap;
++    gap: 12px;
++    margin-block: 32px
++}
++
++.doc-categories>a {
++    border: 1px solid #bdbfcc;
++    border-radius: 6px;
++    box-sizing: border-box;
++    color: inherit !important;
++    flex-basis: 0;
++    flex-grow: 1;
++    min-width: 280px;
++    padding: 24px;
++    text-align: center;
++    text-decoration: none
++}
++
++.doc-categories img {
++    display: block;
++    height: 40px;
++    margin-inline: auto;
++    width: 40px
++}
++
++.doc-categories strong {
++    -webkit-margin-before: 12px;
++    display: block;
++    margin-block-start: 12px
++}
++
++.doc-categories p {
++    -webkit-margin-after: 0;
++    margin-block-end: 0;
++    margin-inline: auto;
++    max-width: 280px
++}
++
++.doc-categories a:active strong,
++.doc-categories a:hover strong {
++    text-decoration: underline
++}
++
++.doc-categories a:focus,
++.doc-categories a:hover {
++    background: #eff0f3
++}
++
++.doc-categories a:active {
++    background: #e4e5ea
++}
++
++.symbol-hint {
++    align-items: center;
++    display: flex;
++    flex-wrap: wrap;
++    justify-content: space-between
++}
++
++p+.symbol-grid {
++    -webkit-margin-before: 24px;
++    margin-block-start: 24px
++}
++
++.symbol-grid {
++    display: grid;
++    gap: 16px;
++    grid-auto-rows: 80px;
++    grid-template-columns: repeat(auto-fill, 80px);
++    justify-content: space-between;
++    list-style: none;
++    padding-inline: 0;
++    position: relative;
++    width: 100%
++}
++
++.symbol-grid li {
++    display: block;
++    margin: 0
++}
++
++.symbol-grid li::marker {
++    content: "";
++    display: none
++}
++
++.symbol-flyout button:not(.copy),
++.symbol-grid button:not(.copy) {
++    align-items: center;
++    background: #eff0f3;
++    border: 0;
++    box-shadow: 0 2px 8px rgba(89, 85, 101, .2);
++    display: flex;
++    flex-direction: column;
++    height: 100%;
++    justify-content: center;
++    overflow: hidden;
++    padding: 8px;
++    width: 100%
++}
++
++.symbol-flyout button:not(.copy):hover,
++.symbol-grid button:hover {
++    background: #e4e5ea
++}
++
++.symbol-flyout .sym,
++.symbol-grid .sym {
++    font-family: HK Grotesk, Inter, NewComputerModernMath, Latin Modern Math, Cambria Math, Noto Sans, Symbol, Segoe UI Symbol, Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, Twemoji, sans-serif;
++    font-size: 28px;
++    margin-bottom: 2px;
++    margin-top: auto;
++    -webkit-user-select: none;
++    -moz-user-select: none;
++    -ms-user-select: none;
++    user-select: none
++}
++
++.symbol-flyout .symbol-grid .override .sym,
++.symbol-flyout.override .info>button>.sym,
++.symbol-grid li[data-override] .sym {
++    color: #565565;
++    font-size: 18px;
++    font-style: italic;
++    font-weight: 500
++}
++
++button+.remark {
++    -webkit-margin-start: 4px;
++    color: #565565;
++    font-size: 14px;
++    margin-inline-start: 4px
++}
++
++.symbol-flyout .symbol-grid .override .sym {
++    font-size: 8px
++}
++
++.symbol-flyout .sym {
++    margin: 0
++}
++
++.emoji .symbol-flyout .sym,
++.symbol-grid.emoji .sym {
++    font-family: Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, Twemoji, HK Grotesk, Inter, NewComputerModernMath, Latin Modern Math, Cambria Math, Noto Sans, Symbol, Segoe UI Symbol, sans-serif
++}
++
++.symbol-flyout button>code,
++.symbol-grid button>code {
++    word-wrap: anywhere;
++    font-size: 12px;
++    margin-top: auto;
++    text-overflow: ellipsis;
++    white-space: normal
++}
++
++.symbol-flyout {
++    background: #e4e5ea;
++    border-radius: 8px;
++    box-shadow: 0 4px 12px rgba(89, 85, 101, .2), 0 4px 24px rgba(89, 85, 101, .3);
++    box-sizing: border-box;
++    max-width: 80vw;
++    padding: 12px;
++    position: absolute;
++    width: 400px;
++    z-index: 2
++}
++
++.symbol-flyout button:not(.copy) {
++    box-shadow: none
++}
++
++.symbol-flyout button.main {
++    flex-shrink: 0;
++    height: 80px;
++    width: 80px
++}
++
++.symbol-flyout button.main:hover {
++    background: #eff0f3
++}
++
++.symbol-flyout h3 {
++    display: block;
++    margin-block: 0 8px
++}
++
++.symbol-flyout p {
++    margin-block: 4px 0
++}
++
++.symbol-flyout h4 {
++    margin-block: 16px 8px
++}
++
++.symbol-flyout .symbol-grid button .sym {
++    font-size: 18px
++}
++
++.symbol-flyout .symbol-grid {
++    gap: 8px;
++    grid-auto-rows: 32px;
++    grid-template-columns: repeat(auto-fill, 32px);
++    margin-block: 0
++}
++
++.symbol-flyout button.copy {
++    -webkit-margin-start: 2px;
++    margin-inline-start: 2px;
++    top: 1px
++}
++
++.package-list button.copy,
++.symbol-flyout button.copy {
++    background: none;
++    border: 0;
++    box-shadow: none;
++    display: inline-block;
++    padding: 2px;
++    position: relative;
++    width: unset
++}
++
++.search:has(#package-search) {
++    margin-top: 24px
++}
++
++.package-list button.copy {
++    padding-inline: 0
++}
++
++.package-list {
++    table-layout: fixed
++}
++
++.package-list thead tr th:first-child {
++    width: min(6em, 20vw)
++}
++
++.package-list thead tr th:nth-last-child(3) {
++    width: 3.2em
++}
++
++.package-list thead tr th:nth-last-child(2) {
++    width: .9em
++}
++
++.package-list thead tr th:last-child {
++    width: .3em
++}
++
++.package-list td:nth-last-child(3),
++.package-list th:nth-last-child(3) {
++    text-align: right
++}
++
++.package-list td:last-child {
++    padding-left: 0;
++    text-align: left
++}
++
++.package-list td:not(:last-child, :nth-last-child(2)) {
++    overflow: hidden;
++    text-overflow: ellipsis;
++    vertical-align: top;
++    white-space: nowrap
++}
++
++@media screen and (max-width:660px) {
++
++    .package-list td:nth-last-child(2),
++    .package-list td:nth-last-child(3),
++    .package-list th:nth-last-child(2),
++    .package-list th:nth-last-child(3) {
++        display: none
++    }
++}
++
++.show-all {
++    display: flex;
++    font-size: 14px;
++    justify-content: flex-end;
++    margin-top: 8px;
++    -webkit-user-select: none;
++    -moz-user-select: none;
++    -ms-user-select: none;
++    user-select: none
++}
++
++.show-all label {
++    color: #565565;
++    display: block;
++    margin-top: 1px
++}
++
++.info {
++    display: flex;
++    gap: 16px
++}
++
++.info .accent {
++    align-items: center;
++    display: flex;
++    gap: 4px
++}
++
++.contribs {
++    -webkit-padding-start: 8px;
++    display: flex;
++    flex-wrap: wrap;
++    list-style: none;
++    padding-inline-start: 8px
++}
++
++.contribs li {
++    -webkit-margin-start: -8px;
++    display: block;
++    margin: 0;
++    margin-inline-start: -8px;
++    transform: scale(1);
++    transform-origin: bottom center;
++    transition: transform .2s ease-in
++}
++
++.contribs li:hover {
++    transform: scale(1.5)
++}
++
++.contribs img {
++    border-radius: 100%;
++    box-shadow: 0 1px 4px rgba(86, 85, 101, .2);
++    height: 32px;
++    width: 32px
++}
++
++@media screen and (max-width:1024px) {
++    #page-overview {
++        display: none
++    }
++
++    .main-grid {
++        display: grid;
++        gap: 28px;
++        grid-template-columns: minmax(auto, 184px) minmax(auto, 784px);
++        justify-content: center
++    }
++}
++
++@media screen and (max-width:660px) {
++    header>div>.logo-box span {
++        display: none
++    }
++
++    .main-grid {
++        padding-inline: 24px
++    }
++
++    .type-args li .break-box {
++        flex-wrap: wrap
++    }
++}
++
++@media screen and (max-width:600px) {
++    header>div>.logo-box {
++        display: none !important
++    }
++
++    .main-grid,
++    button.hamburger {
++        display: block
++    }
++
++    main {
++        padding-inline: 0
++    }
++
++    nav.folding .title-row {
++        display: block;
++        padding: 8px
++    }
++
++    nav.folding {
++        background: #fdfdfd;
++        bottom: 0;
++        box-shadow: 0 4px 12px rgba(89, 85, 101, .2), 0 4px 24px rgba(89, 85, 101, .3);
++        display: block;
++        left: 0;
++        max-height: 100vh;
++        opacity: 0;
++        overflow: hidden auto;
++        padding: 24px;
++        position: fixed;
++        top: 0;
++        transition: transform .2s ease;
++        width: min(184px, calc(100vw - 48px));
++        z-index: 8
++    }
++
++    @media (prefers-reduced-motion:reduce) {
++        nav.folding {
++            transition: none
++        }
++    }
++
++    nav.mobile-hidden {
++        display: none
++    }
++
++    h2 small,
++    h3 small {
++        align-items: center
++    }
++
++    h2 small svg,
++    h3 small svg {
++        margin-bottom: -2px;
++        margin-left: -2px;
++        padding: 4px
++    }
++
++    h2 .additional-info,
++    h3 .additional-info {
++        flex-wrap: wrap
++    }
++
++    .breadcrumbs {
++        overflow-x: auto
++    }
++}
++
++@media screen and (max-width:365px) {
++    body.docs>.main-grid {
++        max-width: unset;
++        padding: 12px
++    }
++
++    @supports (grid-template-columns:subgrid) {
++        .type-args li>* {
++            grid-column: 2/4 !important
++        }
++
++        .type-args li .break-box>* {
++            grid-column: 1/3 !important
++        }
++
++        .type-args .pill {
++            justify-self: start
++        }
++    }
++
++    .subgridded {
++        -webkit-padding-start: 32px;
++        display: block;
++        padding-inline-start: 32px
++    }
++
++    .subgridded li {
++        display: list-item
++    }
++
++    .subgridded li:before {
++        content: none
++    }
++
++    .subgridded li>:first-child {
++        min-width: unset
++    }
++
++    .subgridded li>:not(:first-child) {
++        -webkit-margin-start: 12px;
++        margin-inline-start: 12px
++    }
++}
+\ No newline at end of file
 diff --git a/crates/typst-docs/src/main.rs b/crates/typst-docs/src/main.rs
 new file mode 100644
-index 00000000..f73c2379
+index 00000000..a0d3f492
 --- /dev/null
 +++ b/crates/typst-docs/src/main.rs
-@@ -0,0 +1,7 @@
+@@ -0,0 +1,98 @@
++mod templates;
++
 +use std::fs::create_dir_all;
 +
++use include_dir::{include_dir, Dir};
++
++use self::templates::render_page;
++
++static PUBLIC_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/public");
++
++struct MyResolver<'a> {
++    out_dir: &'a Path,
++}
++impl<'a> Resolver for MyResolver<'a> {
++    fn commits(&self, from: &str, to: &str) -> Vec<typst_docs::Commit> {
++        eprintln!("commits({from}, {to})");
++        vec![]
++    }
++    fn example(
++        &self,
++        hash: u128,
++        source: Option<typst_docs::Html>,
++        frames: &[Frame],
++    ) -> typst_docs::Html {
++        eprintln!(
++            "example(0x{hash:x}, {:?} chars, &[Frame; {}])",
++            source.as_ref().map(|s| s.as_str().len()),
++            frames.len()
++        );
++
++        Html::new("".to_string())
++    }
++    fn image(&self, filename: &str, data: &[u8]) -> String {
++        eprintln!("image({filename}, {} bytes)", data.len());
++
++        let path = self.out_dir.join("docs").join(filename);
++        create_dir_all(path.parent().expect("parent")).expect("create dir");
++        write(path, data).expect("write image");
++
++        format!("/assets/docs/{filename}")
++    }
++    fn link(&self, link: &str) -> Option<String> {
++        eprintln!("link({link})");
++        None
++    }
++}
++
++/// Generates the documentation website for the Typst project. Expects the
++/// site to be hosted so that the main docs website is at '/docs'. You are
++/// encouraged to post-process the resulting file tree output to customize the
++/// base URL or assets location to work better with your hosting setup.
++#[derive(Parser, Debug)]
++#[command(version, about, long_about = None)]
++struct Args {
++    #[arg(short, long, default_value = "_site")]
++    out_dir: PathBuf,
++}
++
 +fn main() -> Result<(), Box<dyn std::error::Error>> {
-+    println!("Hello world!");
++    let args = Args::parse();
++    
++    let own_pages = provide(&MyResolver {
++        out_dir: args.out_dir.as_path(),
++        assets_dir: args.assets_dir.as_path(),
++    });
++    let pages: Vec<_> = own_pages.iter().collect();
++
++    fn pages_flat_helper<'a>(page: &'a PageModel, pages: &mut Vec<&'a PageModel>) {
++        pages.push(page);
++        pages.extend(page.children.iter());
++    }
++    let mut all_pages: Vec<&PageModel> = Vec::new();
++    for page in &pages {
++        pages_flat_helper(page, &mut all_pages);
++    }
++
++    for page in &pages {
++        let path = args.out_dir.clone();
++        let mut route = page.route.to_string();
++        if route.ends_with("/") {
++            route.push_str("index.html");
++        }
++        let mut route = route.strip_prefix("/docs/").unwrap_or(&route).to_string();
++        if route.starts_with("/") {
++            route.remove(0);
++        }
++        path.push(route);
++
++        let html = render_page(page, &all_pages)?;
++
++        create_dir_all(path.parent().expect("parent")).expect("create dir");
++        write(path, html.as_bytes()).expect("write page");
++    }
++
++    PUBLIC_DIR.extract(args.out_dir)?;
 +
 +    Ok(())
 +}
 \ No newline at end of file
+diff --git a/crates/typst-docs/src/templates.rs b/crates/typst-docs/src/templates.rs
+new file mode 100644
+index 00000000..33be728e
+--- /dev/null
++++ b/crates/typst-docs/src/templates.rs
+@@ -0,0 +1,183 @@
++use std::error::Error;
++
++use askama::Template;
++use typst_docs::{PageModel, CategoryModel, FuncModel, Html, GroupModel, SymbolsModel, TypeModel};
++use ecow::EcoString;
++
++#[derive(Template)]
++#[template(path = "category.html")]
++pub struct CategoryTemplate<'a> {
++    page: &'a PageModel,
++    prev: Option<&'a PageModel>,
++    next: Option<&'a PageModel>,
++    breadcrumbs: Vec<&'a PageModel>,
++    pages: &'a [&'a PageModel],
++    category: &'a CategoryModel,
++}
++
++#[derive(Template)]
++#[template(path = "func.html")]
++pub struct FuncTemplate<'a> {
++    page: &'a PageModel,
++    prev: Option<&'a PageModel>,
++    next: Option<&'a PageModel>,
++    breadcrumbs: Vec<&'a PageModel>,
++    func: &'a FuncModel,
++}
++
++#[derive(Template)]
++#[template(path = "group.html")]
++pub struct GroupTemplate<'a> {
++    page: &'a PageModel,
++    prev: Option<&'a PageModel>,
++    next: Option<&'a PageModel>,
++    breadcrumbs: Vec<&'a PageModel>,
++    group: &'a GroupModel,
++}
++
++#[derive(Template)]
++#[template(path = "html.html")]
++pub struct HtmlTemplate<'a> {
++    page: &'a PageModel,
++    prev: Option<&'a PageModel>,
++    next: Option<&'a PageModel>,
++    breadcrumbs: Vec<&'a PageModel>,
++    html: &'a Html,
++}
++
++#[derive(Template)]
++#[template(path = "packages.html")]
++pub struct PackagesTemplate<'a> {
++    page: &'a PageModel,
++    prev: Option<&'a PageModel>,
++    next: Option<&'a PageModel>,
++    breadcrumbs: Vec<&'a PageModel>,
++    packages: (),
++}
++
++#[derive(Template)]
++#[template(path = "symbols.html")]
++pub struct SymbolsTemplate<'a> {
++    page: &'a PageModel,
++    prev: Option<&'a PageModel>,
++    next: Option<&'a PageModel>,
++    breadcrumbs: Vec<&'a PageModel>,
++    symbols: &'a SymbolsModel,
++}
++
++#[derive(Template)]
++#[template(path = "type.html")]
++pub struct TypeTemplate<'a> {
++    page: &'a PageModel,
++    prev: Option<&'a PageModel>,
++    next: Option<&'a PageModel>,
++    breadcrumbs: Vec<&'a PageModel>,
++    type_: &'a TypeModel,
++}
++
++/// Get the breadcrumbs for a page. The "breadcrumbs" are the links at the top of the page that
++/// show the hierarchy of the page. The returned vector is in order from the highest level to the
++/// lowest level. It includes the current page.
++pub fn get_breadcrumbs<'a>(page: &'a PageModel, all_pages: &'a [&'a PageModel]) -> Vec<&'a PageModel> {
++    let mut breadcrumbs = Vec::new();
++    // Start with the current page
++    breadcrumbs.push(page);
++
++    // Helper function to find parent page by route
++    fn find_parent<'a>(route: &str, all_pages: &'a [&'a PageModel]) -> Option<&'a PageModel> {
++        all_pages.iter().find(|&p| p.route == route)
++    }
++
++    // Traverse upwards to find parent pages until the root
++    let mut current_page = page;
++    while let Some(parent_route) = current_page.part {
++        if let Some(parent_page) = find_parent(parent_route, all_pages) {
++            breadcrumbs.push(parent_page);
++            current_page = parent_page;
++        } else {
++            // Parent page not found, break the loop
++            break;
++        }
++    }
++
++    // Reverse the vector to have the highest level first
++    breadcrumbs.reverse();
++    breadcrumbs
++}
++
++pub fn render_page<'a>(page: &'a PageModel, all_pages: &'a [&'a PageModel]) -> Result<EcoString, Box<dyn Error>> {
++    let page_index = all_pages.iter().position(|p| p.route == page.route).unwrap();
++    let prev = if page_index > 0 {
++        Some(all_pages[page_index - 1])
++    } else {
++        None
++    };
++    let next = if page_index < all_pages.len() - 1 {
++        Some(all_pages[page_index + 1])
++    } else {
++        None
++    };
++
++    let breadcrumbs = get_breadcrumbs(page, all_pages);
++
++    let html_string = match &page.body {
++        BodyModel::Category(category) => CategoryTemplate {
++            page,
++            prev,
++            next,
++            breadcrumbs,
++            pages: all_pages,
++            category,
++        }
++        .render()?,
++        BodyModel::Func(func) => FuncTemplate {
++            page,
++            prev,
++            next,
++            breadcrumbs,
++            func,
++        }
++        .render()?,
++        BodyModel::Group(group) => GroupTemplate {
++            page,
++            prev,
++            next,
++            breadcrumbs,
++            group,
++        }
++        .render()?,
++        BodyModel::Html(html) => HtmlTemplate {
++            page,
++            prev,
++            next,
++            breadcrumbs,
++            html,
++        }
++        .render()?,
++        BodyModel::Packages(_) => PackagesTemplate {
++            page,
++            prev,
++            next,
++            breadcrumbs,
++            packages: (),
++        }
++        .render()?,
++        BodyModel::Symbols(symbols) => SymbolsTemplate {
++            page,
++            prev,
++            next,
++            breadcrumbs,
++            symbols,
++        }
++        .render()?,
++        BodyModel::Type(type_) => TypeTemplate {
++            page,
++            prev,
++            next,
++            breadcrumbs,
++            type_,
++        }
++        .render()?,
++    };
++    EcoString::from(html_string)
++}
+\ No newline at end of file
+diff --git a/crates/typst-docs/templates/_layout.html b/crates/typst-docs/templates/_layout.html
+new file mode 100644
+index 00000000..af476ea8
+--- /dev/null
++++ b/crates/typst-docs/templates/_layout.html
+@@ -0,0 +1,407 @@
++<!DOCTYPE html>
++<html lang="en">
++
++<head>
++  <meta charset="utf-8">
++  <title>Figure Function – Typst Documentation</title>
++  <meta name="description" content="Documentation for the `figure` function.">
++  <meta name="viewport" content="width=device-width,initial-scale=1">
++  <meta name="theme-color" content="#239dad">
++  <link rel="manifest" href="/assets/site.webmanifest">
++  <meta property="og:url" content="https://typst.app/docs/reference/model/figure/">
++  <meta property="og:title" content="Figure Function – Typst Documentation">
++  <meta property="og:site_name" content="Typst">
++  <meta property="og:description" content="Documentation for the `figure` function.">
++  <meta property="og:type" content="website">
++  <meta property="og:image" content="https://typst.app/assets/social.png">
++  <meta property="og:image:width" content="1200">
++  <meta property="og:image:height" content="630">
++  <meta name="twitter:site" content="@typstapp">
++  <meta name="twitter:card" content="summary_large_image">
++  <link rel="canonical" href="https://typst.app/docs/reference/model/figure/">
++  <meta name="twitter:image:alt"
++    content="The left side of a text editor with colorful cursors, as well as the text &#x27;Compose papers faster, Typst&#x27;">
++  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
++  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
++  <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
++  <link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#239dad">
++  <link rel="manifest" href="/assets/site.webmanifest">
++  <link rel="stylesheet" href="/styles/default.css?bust=20231030?d=2024-02-14">
++  <link rel="stylesheet" href="/styles/docs.css?bust=20231030?d=2024-02-14">
++  <link rel="preload" href="/assets/fonts/HKGrotesk-Regular.woff2" as="font">
++  <link rel="preload" href="/assets/fonts/HKGrotesk-Bold.woff2" as="font">
++  <link rel="preload" href="/assets/fonts/HKGrotesk-SemiBold.woff2" as="font">
++  <link rel="preload" href="/assets/fonts/CascadiaMono-Regular-Sub.woff2" as="font">
++  <link rel="preload" href="/assets/images/blur.webp" as="image">
++  <script>document.documentElement.className = document.documentElement.className.replace("no-js", "js"), document.addEventListener("DOMContentLoaded", (() => { const e = document.cookie.split("; ").find((e => e.startsWith("INSECURE_SIGNED_IN=")))?.split("=")[1].toLowerCase(); if ("1" === e || "true" === e || "yes" === e) { document.documentElement.classList.add("signed-in"); const e = document.querySelector("header nav a.nav-btn"), t = document.querySelector("header nav a.sign-in"); e && (e.innerHTML = "Go to app", e.setAttribute("href", "/app/")), t && (t.innerHTML = "Sign out", t.setAttribute("href", "https://api.typst.app/v1/auth/logout")) } }))</script>
++</head>
++
++<body class="no-js docs has-outline">
++  <header class="boring">
++    <div><a href="/docs" class="logo-box"><img src="/assets/images/typst.svg" alt="Typst" width="91"
++          height="35"><span>Documentation</span></a><button class="hamburger"><img alt="Open navigation"
++          src="/assets/icons/16-hamburger-dark.svg" width="16" height="16"></button>
++      <nav>
++        <ul>
++          <li class="social"><a href="https://twitter.com/typstapp/"><svg width="16" height="16" viewBox="0 0 16 16"
++                preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby=":Rsq:-label">
++                <title id=":Rsq:-label">Twitter</title>
++                <use href="/assets/icons/social.svg#twitter"></use>
++              </svg></a></li>
++          <li class="social"><a href="https://discord.gg/2uDybryKPe"><svg width="16" height="16" viewBox="0 0 16 16"
++                preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby=":R1cq:-label">
++                <title id=":R1cq:-label">Discord</title>
++                <use href="/assets/icons/social.svg#discord"></use>
++              </svg></a></li>
++          <li class="social"><a href="https://github.com/typst/"><svg width="16" height="16" viewBox="0 0 16 16"
++                preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby=":R1sq:-label">
++                <title id=":R1sq:-label">GitHub</title>
++                <use href="/assets/icons/social.svg#github"></use>
++              </svg></a></li>
++          <li class="social"><a href="https://www.linkedin.com/company/typst/"><svg width="16" height="16"
++                viewBox="0 0 16 16" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby=":R2cq:-label">
++                <title id=":R2cq:-label">LinkedIn</title>
++                <use href="/assets/icons/social.svg#linkedin"></use>
++              </svg></a></li>
++          <li class="secondary"><a href="/">Home</a></li>
++          <li class="secondary"><a href="/signin/" class="sign-in">Sign in</a></li>
++          <li><a href="/signup" id="header-btn" class="nav-btn btn">Sign up</a></li>
++        </ul>
++      </nav>
++    </div>
++  </header>
++  <div class="main-grid">
++    <nav class="folding"><a href="/docs" class="title-row"><svg width="91" height="35" viewBox="0 0 91 35"
++          preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby=":R4la:-label">
++          <title id=":R4la:-label">Typst</title>
++          <use href="/assets/images/typst.svg#logo"></use>
++        </svg><span>Documentation</span></a><button class="close"><img alt="Close" src="/assets/icons/16-close-dark.svg"
++          width="16" height="16"></button>
++      <div class="search"><img src="/assets/icons/16-search-gray.svg" alt="Search" width="16" height="16"><input
++          type="search" placeholder="Search" id="docs-search"></div>
++      <ul class="search-results hidden" id="search-results"></ul>
++      <ul>
++        <li><a href="/docs/">Overview</a></li>
++        <li><a href="/docs/tutorial/">Tutorial</a><button><img alt="Expand" src="/assets/icons/16-arrow-right.svg"
++              width="16" height="16"></button>
++          <ul>
++            <li><a href="/docs/tutorial/writing-in-typst/">Writing in Typst</a></li>
++            <li><a href="/docs/tutorial/formatting/">Formatting</a></li>
++            <li><a href="/docs/tutorial/advanced-styling/">Advanced Styling</a></li>
++            <li><a href="/docs/tutorial/making-a-template/">Making a Template</a></li>
++          </ul>
++        </li>
++        <li><a href="/docs/reference/">Reference</a><button><img alt="Expand" src="/assets/icons/16-arrow-right.svg"
++              width="16" height="16"></button>
++          <ul>
++            <li class="category">Language</li>
++            <li><a href="/docs/reference/syntax/">Syntax</a></li>
++            <li><a href="/docs/reference/styling/">Styling</a></li>
++            <li><a href="/docs/reference/scripting/">Scripting</a></li>
++            <li class="category">Library</li>
++            <li><a href="/docs/reference/foundations/">Foundations</a><button><img alt="Expand"
++                  src="/assets/icons/16-arrow-right.svg" width="16" height="16"></button>
++              <ul>
++                <li><a href="/docs/reference/foundations/arguments/">Arguments</a></li>
++                <li><a href="/docs/reference/foundations/array/">Array</a></li>
++                <li><a href="/docs/reference/foundations/assert/">Assert</a></li>
++                <li><a href="/docs/reference/foundations/bool/">Boolean</a></li>
++                <li><a href="/docs/reference/foundations/bytes/">Bytes</a></li>
++                <li><a href="/docs/reference/foundations/calc">Calculation</a></li>
++                <li><a href="/docs/reference/foundations/content/">Content</a></li>
++                <li><a href="/docs/reference/foundations/datetime/">Datetime</a></li>
++                <li><a href="/docs/reference/foundations/dictionary/">Dictionary</a></li>
++                <li><a href="/docs/reference/foundations/duration/">Duration</a></li>
++                <li><a href="/docs/reference/foundations/eval/">Evaluate</a></li>
++                <li><a href="/docs/reference/foundations/float/">Float</a></li>
++                <li><a href="/docs/reference/foundations/function/">Function</a></li>
++                <li><a href="/docs/reference/foundations/int/">Integer</a></li>
++                <li><a href="/docs/reference/foundations/label/">Label</a></li>
++                <li><a href="/docs/reference/foundations/module/">Module</a></li>
++                <li><a href="/docs/reference/foundations/panic/">Panic</a></li>
++                <li><a href="/docs/reference/foundations/plugin/">Plugin</a></li>
++                <li><a href="/docs/reference/foundations/regex/">Regex</a></li>
++                <li><a href="/docs/reference/foundations/repr/">Representation</a></li>
++                <li><a href="/docs/reference/foundations/selector/">Selector</a></li>
++                <li><a href="/docs/reference/foundations/str/">String</a></li>
++                <li><a href="/docs/reference/foundations/style/">Style</a></li>
++                <li><a href="/docs/reference/foundations/sys">System</a></li>
++                <li><a href="/docs/reference/foundations/type/">Type</a></li>
++                <li><a href="/docs/reference/foundations/version/">Version</a></li>
++              </ul>
++            </li>
++            <li><a href="/docs/reference/model/">Model</a><button><img alt="Expand"
++                  src="/assets/icons/16-arrow-right.svg" width="16" height="16"></button>
++              <ul>
++                <li><a href="/docs/reference/model/bibliography/">Bibliography</a></li>
++                <li><a href="/docs/reference/model/list/">Bullet List</a></li>
++                <li><a href="/docs/reference/model/cite/">Cite</a></li>
++                <li><a href="/docs/reference/model/document/">Document</a></li>
++                <li><a href="/docs/reference/model/emph/">Emphasis</a></li>
++                <li><a href="/docs/reference/model/figure/" aria-current="page">Figure</a></li>
++                <li><a href="/docs/reference/model/footnote/">Footnote</a></li>
++                <li><a href="/docs/reference/model/heading/">Heading</a></li>
++                <li><a href="/docs/reference/model/link/">Link</a></li>
++                <li><a href="/docs/reference/model/enum/">Numbered List</a></li>
++                <li><a href="/docs/reference/model/numbering/">Numbering</a></li>
++                <li><a href="/docs/reference/model/outline/">Outline</a></li>
++                <li><a href="/docs/reference/model/par/">Paragraph</a></li>
++                <li><a href="/docs/reference/model/parbreak/">Paragraph Break</a></li>
++                <li><a href="/docs/reference/model/quote/">Quote</a></li>
++                <li><a href="/docs/reference/model/ref/">Reference</a></li>
++                <li><a href="/docs/reference/model/strong/">Strong Emphasis</a></li>
++                <li><a href="/docs/reference/model/table/">Table</a></li>
++                <li><a href="/docs/reference/model/terms/">Term List</a></li>
++              </ul>
++            </li>
++            <li><a href="/docs/reference/text/">Text</a><button><img alt="Expand" src="/assets/icons/16-arrow-right.svg"
++                  width="16" height="16"></button>
++              <ul>
++                <li><a href="/docs/reference/text/highlight/">Highlight</a></li>
++                <li><a href="/docs/reference/text/linebreak/">Line Break</a></li>
++                <li><a href="/docs/reference/text/lorem/">Lorem</a></li>
++                <li><a href="/docs/reference/text/lower/">Lowercase</a></li>
++                <li><a href="/docs/reference/text/overline/">Overline</a></li>
++                <li><a href="/docs/reference/text/raw/">Raw Text / Code</a></li>
++                <li><a href="/docs/reference/text/smallcaps/">Small Capitals</a></li>
++                <li><a href="/docs/reference/text/smartquote/">Smartquote</a></li>
++                <li><a href="/docs/reference/text/strike/">Strikethrough</a></li>
++                <li><a href="/docs/reference/text/sub/">Subscript</a></li>
++                <li><a href="/docs/reference/text/super/">Superscript</a></li>
++                <li><a href="/docs/reference/text/text/">Text</a></li>
++                <li><a href="/docs/reference/text/underline/">Underline</a></li>
++                <li><a href="/docs/reference/text/upper/">Uppercase</a></li>
++              </ul>
++            </li>
++            <li><a href="/docs/reference/math/">Math</a><button><img alt="Expand" src="/assets/icons/16-arrow-right.svg"
++                  width="16" height="16"></button>
++              <ul>
++                <li><a href="/docs/reference/math/accent/">Accent</a></li>
++                <li><a href="/docs/reference/math/attach">Attach</a></li>
++                <li><a href="/docs/reference/math/cancel/">Cancel</a></li>
++                <li><a href="/docs/reference/math/cases/">Cases</a></li>
++                <li><a href="/docs/reference/math/class/">Class</a></li>
++                <li><a href="/docs/reference/math/equation/">Equation</a></li>
++                <li><a href="/docs/reference/math/frac/">Fraction</a></li>
++                <li><a href="/docs/reference/math/lr">Left/Right</a></li>
++                <li><a href="/docs/reference/math/mat/">Matrix</a></li>
++                <li><a href="/docs/reference/math/roots">Roots</a></li>
++                <li><a href="/docs/reference/math/sizes">Sizes</a></li>
++                <li><a href="/docs/reference/math/styles">Styles</a></li>
++                <li><a href="/docs/reference/math/op/">Text Operator</a></li>
++                <li><a href="/docs/reference/math/underover">Under/Over</a></li>
++                <li><a href="/docs/reference/math/variants">Variants</a></li>
++                <li><a href="/docs/reference/math/vec/">Vector</a></li>
++              </ul>
++            </li>
++            <li><a href="/docs/reference/symbols/">Symbols</a><button><img alt="Expand"
++                  src="/assets/icons/16-arrow-right.svg" width="16" height="16"></button>
++              <ul>
++                <li><a href="/docs/reference/symbols/sym/">General</a></li>
++                <li><a href="/docs/reference/symbols/emoji/">Emoji</a></li>
++                <li><a href="/docs/reference/symbols/symbol/">Symbol</a></li>
++              </ul>
++            </li>
++            <li><a href="/docs/reference/layout/">Layout</a><button><img alt="Expand"
++                  src="/assets/icons/16-arrow-right.svg" width="16" height="16"></button>
++              <ul>
++                <li><a href="/docs/reference/layout/align/">Align</a></li>
++                <li><a href="/docs/reference/layout/alignment/">Alignment</a></li>
++                <li><a href="/docs/reference/layout/angle/">Angle</a></li>
++                <li><a href="/docs/reference/layout/block/">Block</a></li>
++                <li><a href="/docs/reference/layout/box/">Box</a></li>
++                <li><a href="/docs/reference/layout/colbreak/">Column Break</a></li>
++                <li><a href="/docs/reference/layout/columns/">Columns</a></li>
++                <li><a href="/docs/reference/layout/direction/">Direction</a></li>
++                <li><a href="/docs/reference/layout/fraction/">Fraction</a></li>
++                <li><a href="/docs/reference/layout/grid/">Grid</a></li>
++                <li><a href="/docs/reference/layout/hide/">Hide</a></li>
++                <li><a href="/docs/reference/layout/layout/">Layout</a></li>
++                <li><a href="/docs/reference/layout/length/">Length</a></li>
++                <li><a href="/docs/reference/layout/measure/">Measure</a></li>
++                <li><a href="/docs/reference/layout/move/">Move</a></li>
++                <li><a href="/docs/reference/layout/pad/">Padding</a></li>
++                <li><a href="/docs/reference/layout/page/">Page</a></li>
++                <li><a href="/docs/reference/layout/pagebreak/">Page Break</a></li>
++                <li><a href="/docs/reference/layout/place/">Place</a></li>
++                <li><a href="/docs/reference/layout/ratio/">Ratio</a></li>
++                <li><a href="/docs/reference/layout/relative/">Relative Length</a></li>
++                <li><a href="/docs/reference/layout/repeat/">Repeat</a></li>
++                <li><a href="/docs/reference/layout/rotate/">Rotate</a></li>
++                <li><a href="/docs/reference/layout/scale/">Scale</a></li>
++                <li><a href="/docs/reference/layout/h/">Spacing (H)</a></li>
++                <li><a href="/docs/reference/layout/v/">Spacing (V)</a></li>
++                <li><a href="/docs/reference/layout/stack/">Stack</a></li>
++              </ul>
++            </li>
++            <li><a href="/docs/reference/visualize/">Visualize</a><button><img alt="Expand"
++                  src="/assets/icons/16-arrow-right.svg" width="16" height="16"></button>
++              <ul>
++                <li><a href="/docs/reference/visualize/circle/">Circle</a></li>
++                <li><a href="/docs/reference/visualize/color/">Color</a></li>
++                <li><a href="/docs/reference/visualize/ellipse/">Ellipse</a></li>
++                <li><a href="/docs/reference/visualize/gradient/">Gradient</a></li>
++                <li><a href="/docs/reference/visualize/image/">Image</a></li>
++                <li><a href="/docs/reference/visualize/line/">Line</a></li>
++                <li><a href="/docs/reference/visualize/path/">Path</a></li>
++                <li><a href="/docs/reference/visualize/pattern/">Pattern</a></li>
++                <li><a href="/docs/reference/visualize/polygon/">Polygon</a></li>
++                <li><a href="/docs/reference/visualize/rect/">Rectangle</a></li>
++                <li><a href="/docs/reference/visualize/square/">Square</a></li>
++                <li><a href="/docs/reference/visualize/stroke/">Stroke</a></li>
++              </ul>
++            </li>
++            <li><a href="/docs/reference/introspection/">Introspection</a><button><img alt="Expand"
++                  src="/assets/icons/16-arrow-right.svg" width="16" height="16"></button>
++              <ul>
++                <li><a href="/docs/reference/introspection/counter/">Counter</a></li>
++                <li><a href="/docs/reference/introspection/locate/">Locate</a></li>
++                <li><a href="/docs/reference/introspection/location/">Location</a></li>
++                <li><a href="/docs/reference/introspection/metadata/">Metadata</a></li>
++                <li><a href="/docs/reference/introspection/query/">Query</a></li>
++                <li><a href="/docs/reference/introspection/state/">State</a></li>
++              </ul>
++            </li>
++            <li><a href="/docs/reference/data-loading/">Data Loading</a><button><img alt="Expand"
++                  src="/assets/icons/16-arrow-right.svg" width="16" height="16"></button>
++              <ul>
++                <li><a href="/docs/reference/data-loading/cbor/">CBOR</a></li>
++                <li><a href="/docs/reference/data-loading/csv/">CSV</a></li>
++                <li><a href="/docs/reference/data-loading/json/">JSON</a></li>
++                <li><a href="/docs/reference/data-loading/read/">Read</a></li>
++                <li><a href="/docs/reference/data-loading/toml/">TOML</a></li>
++                <li><a href="/docs/reference/data-loading/xml/">XML</a></li>
++                <li><a href="/docs/reference/data-loading/yaml/">YAML</a></li>
++              </ul>
++            </li>
++          </ul>
++        </li>
++        <li><a href="/docs/guides/">Guides</a><button><img alt="Expand" src="/assets/icons/16-arrow-right.svg"
++              width="16" height="16"></button>
++          <ul>
++            <li><a href="/docs/guides/guide-for-latex-users/">Guide for LaTeX users</a></li>
++            <li><a href="/docs/guides/page-setup-guide/">Page setup guide</a></li>
++          </ul>
++        </li>
++        <li><a href="/docs/packages/">Packages</a></li>
++        <li><a href="/docs/changelog/">Changelog</a></li>
++        <li><a href="/docs/roadmap/">Roadmap</a></li>
++        <li><a href="/docs/community/">Community</a></li>
++      </ul>
++    </nav>
++    <main>
++      <ul class="breadcrumbs" aria-label="Breadcrumbs">
++        <li class="root"><a href="/docs"><img src="/assets/icons/16-docs-dark.svg" alt="Docs" width="16"
++              height="16"></a></li>
++        <li aria-hidden="true"><img src="/assets/icons/16-arrow-right.svg" width="16" height="16" alt=""></li>
++        <li><a href="/docs/reference/">Reference</a></li>
++        <li aria-hidden="true"><img src="/assets/icons/16-arrow-right.svg" width="16" height="16" alt=""></li>
++        <li><a href="/docs/reference/model/">Model</a></li>
++        <li aria-hidden="true"><img src="/assets/icons/16-arrow-right.svg" width="16" height="16" alt=""></li>
++        <li><a href="/docs/reference/model/figure/">Figure</a></li>
++      </ul>
++      
++      {% block main %}{% endblock %}
++
++      <div class="page-end-buttons"><a href="/docs/reference/model/emph/" class="previous"><img
++            src="/assets/icons/16-arrow-right.svg" alt="←">
++          <div><span class="page-title">Emphasis</span><span class="hint">Previous page</span></div>
++        </a><a href="/docs/reference/model/footnote/" class="next"><img src="/assets/icons/16-arrow-right.svg" alt="→">
++          <div><span class="page-title">Footnote</span><span class="hint">Next page</span></div>
++        </a></div>
++    </main>
++    <nav id="page-overview"><strong>On this page</strong>
++      <ul>
++        <li data-assoc="summary"><a href="#summary">Summary</a>
++          <ul></ul>
++        </li>
++        <li data-assoc="examples"><a href="#examples">Examples</a>
++          <ul></ul>
++        </li>
++        <li data-assoc="figure-behaviour"><a href="#figure-behaviour">Figure Behaviour</a>
++          <ul></ul>
++        </li>
++        <li data-assoc="caption-customization"><a href="#caption-customization">Caption Customization</a>
++          <ul></ul>
++        </li>
++        <li data-assoc="parameters"><a href="#parameters">Parameters</a>
++          <ul>
++            <li data-assoc="parameters-body"><a href="#parameters-body">body</a>
++              <ul></ul>
++            </li>
++            <li data-assoc="parameters-placement"><a href="#parameters-placement">placement</a>
++              <ul></ul>
++            </li>
++            <li data-assoc="parameters-caption"><a href="#parameters-caption">caption</a>
++              <ul></ul>
++            </li>
++            <li data-assoc="parameters-kind"><a href="#parameters-kind">kind</a>
++              <ul></ul>
++            </li>
++            <li data-assoc="parameters-supplement"><a href="#parameters-supplement">supplement</a>
++              <ul></ul>
++            </li>
++            <li data-assoc="parameters-numbering"><a href="#parameters-numbering">numbering</a>
++              <ul></ul>
++            </li>
++            <li data-assoc="parameters-gap"><a href="#parameters-gap">gap</a>
++              <ul></ul>
++            </li>
++            <li data-assoc="parameters-outlined"><a href="#parameters-outlined">outlined</a>
++              <ul></ul>
++            </li>
++          </ul>
++        </li>
++        <li data-assoc="definitions"><a href="#definitions">Definitions</a>
++          <ul>
++            <li data-assoc="definitions-caption"><a href="#definitions-caption">Caption</a>
++              <ul>
++                <li data-assoc="definitions-caption-position"><a href="#definitions-caption-position">position</a>
++                  <ul></ul>
++                </li>
++                <li data-assoc="definitions-caption-separator"><a href="#definitions-caption-separator">separator</a>
++                  <ul></ul>
++                </li>
++                <li data-assoc="definitions-caption-body"><a href="#definitions-caption-body">body</a>
++                  <ul></ul>
++                </li>
++              </ul>
++            </li>
++          </ul>
++        </li>
++      </ul>
++    </nav>
++  </div>
++  <footer>
++    <div>
++      <ul>
++        <li><a href="/">Home</a></li>
++        <li><a href="/docs/">Documentation</a></li>
++        <li><a href="/about/">About Us</a></li>
++        <li><a href="/contact/">Contact Us</a></li>
++        <li><a href="/tools/">Tools</a></li>
++        <li><a href="/privacy/">Privacy</a></li>
++        <li><a href="/terms/">Terms of Service</a></li>
++        <li><a href="/legal/">Legal (Impressum)</a></li>
++      </ul>
++    </div>
++    <div>
++      <ul>
++        <li><a href="/blog/">Blog</a></li>
++        <li><a href="https://twitter.com/typstapp/">Twitter</a></li>
++        <li><a href="https://discord.gg/2uDybryKPe">Discord</a></li>
++        <li><a rel="me" href="https://mastodon.social/@typst">Mastodon</a></li>
++        <li><a href="https://www.linkedin.com/company/typst/">LinkedIn</a></li>
++        <li><a href="https://instagram.com/typstapp/">Instagram</a></li>
++        <li><a href="https://github.com/typst/">GitHub</a></li>
++      </ul>
++    </div>
++    <div>
++      <p>Made in Berlin</p>
++    </div>
++  </footer>
++  <script src="/scripts/docs.js?bust=20231006"></script>
++  <script src="/scripts/analytics.js" defer></script>
++</body>
++
++</html>
+\ No newline at end of file
+diff --git a/crates/typst-docs/templates/category.html b/crates/typst-docs/templates/category.html
+new file mode 100644
+index 00000000..0e893d82
+--- /dev/null
++++ b/crates/typst-docs/templates/category.html
+@@ -0,0 +1 @@
++{% extends "_layout.html" %}
+diff --git a/crates/typst-docs/templates/func.html b/crates/typst-docs/templates/func.html
+new file mode 100644
+index 00000000..0e893d82
+--- /dev/null
++++ b/crates/typst-docs/templates/func.html
+@@ -0,0 +1 @@
++{% extends "_layout.html" %}
+diff --git a/crates/typst-docs/templates/group.html b/crates/typst-docs/templates/group.html
+new file mode 100644
+index 00000000..0e893d82
+--- /dev/null
++++ b/crates/typst-docs/templates/group.html
+@@ -0,0 +1 @@
++{% extends "_layout.html" %}
+diff --git a/crates/typst-docs/templates/html.html b/crates/typst-docs/templates/html.html
+new file mode 100644
+index 00000000..7ee176d0
+--- /dev/null
++++ b/crates/typst-docs/templates/html.html
+@@ -0,0 +1,5 @@
++{% extends "_layout.html" %}
++
++{% block main %}
++{{ html.as_str() | safe }}
++{% endblock %}
+diff --git a/crates/typst-docs/templates/packages.html b/crates/typst-docs/templates/packages.html
+new file mode 100644
+index 00000000..0e893d82
+--- /dev/null
++++ b/crates/typst-docs/templates/packages.html
+@@ -0,0 +1 @@
++{% extends "_layout.html" %}
+diff --git a/crates/typst-docs/templates/symbols.html b/crates/typst-docs/templates/symbols.html
+new file mode 100644
+index 00000000..0e893d82
+--- /dev/null
++++ b/crates/typst-docs/templates/symbols.html
+@@ -0,0 +1 @@
++{% extends "_layout.html" %}
+diff --git a/crates/typst-docs/templates/type.html b/crates/typst-docs/templates/type.html
+new file mode 100644
+index 00000000..0e893d82
+--- /dev/null
++++ b/crates/typst-docs/templates/type.html
+@@ -0,0 +1 @@
++{% extends "_layout.html" %}
