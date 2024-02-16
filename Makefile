@@ -22,8 +22,8 @@ apply:
 		git -C "crates/typst-$$locale" apply $(GITAPPLYFLAGS) "../../patches/typst-$$locale.patch"; \
 	done
 
-version:
+checkout:
 	for locale in $(SRC_LOCALES); do \
 		git -C "crates/typst-$$locale" reset --hard; \
-		git -C "crates/typst-$$locale" checkout 'v$(VERSION)'; \
+		git -C "crates/typst-$$locale" checkout '$(PATHSPEC)'; \
 	done
