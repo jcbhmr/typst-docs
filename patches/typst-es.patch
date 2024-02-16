@@ -30,10 +30,10 @@ index f2531462..f6d51ea0 100644
  
  /// Extract the first line of documentation.
 diff --git a/crates/typst/src/model/bibliography.rs b/crates/typst/src/model/bibliography.rs
-index 84ab2fff..f8787854 100644
+index 84ab2fff..e35dbb88 100644
 --- a/crates/typst/src/model/bibliography.rs
 +++ b/crates/typst/src/model/bibliography.rs
-@@ -42,47 +42,47 @@ use crate::text::{
+@@ -42,44 +42,44 @@ use crate::text::{
  use crate::util::{option_eq, NonZeroExt, PicoStr};
  use crate::World;
  
@@ -62,7 +62,7 @@ index 84ab2fff..f8787854 100644
 -/// show entries for works that were referenced in the document.
 +/// Tan pronto como agregues una bibliografía en algún lugar de tu documento, podrás comenzar
 +/// citando cosas con sintaxis de referencia (`[@key]`) o llamadas explícitas al
-+/// [cita]($cita) función (`[#cita(<clave>)]`). La bibliografía sólo
++/// [cite]($cite) función (`[#cite(<clave>)]`). La bibliografía sólo
 +/// muestra entradas de obras a las que se hace referencia en el documento.
  ///
 -/// # Styles
@@ -73,7 +73,7 @@ index 84ab2fff..f8787854 100644
 -/// based on what discipline you're working in:
 +/// # estilos
 +/// Typst ofrece una amplia selección de funciones integradas
-+/// [estilos de citas y bibliografía]($bibliografía.estilo). Más allá de eso, tú
++/// [estilos de citas y bibliografía]($bibliography.style). Más allá de eso, tú
 +/// puedo agregar y usar [CSL](https://citationstyles.org/) personalizado (estilo de cita
 +/// Archivos de lenguaje. ¿Se pregunta qué estilo usar? Aquí hay algunos buenos valores predeterminados
 +/// según la disciplina en la que estés trabajando:
@@ -90,10 +90,10 @@ index 84ab2fff..f8787854 100644
 +/// |-----------------|---------------------------- ----------------------|
 +/// | Ingeniería, TI | `{"ieee"}` |
 +/// | Psicología, Ciencias de la Vida | `{"apa"}` |
-+/// | Ciencias sociales | `{"chicago-autor-fecha"}` |
++/// | Ciencias sociales | `{"chicago-author-date"}` |
 +/// | Humanidades | `{"mla"}`, `{"chicago-notes"}`, `{"harvard-cite-them-right"}` |
 +/// | Economía | `{"harvard-cite-them-right"}` |
-+/// | Física | `{"sociedad-americana-de-física"}` |
++/// | Física | `{"american-physics-society"}` |
  ///
 -/// # Example
 +/// # Ejemplo
@@ -107,11 +107,7 @@ index 84ab2fff..f8787854 100644
 +/// Varias fuentes dicen...
  /// @arrgh @netwok.
  ///
--/// #bibliography("works.bib")
-+/// #bibliography("trabajos.bib")
- /// ```
- #[elem(Locatable, Synthesize, Show, ShowSet, LocalName)]
- pub struct BibliographyElem {
+ /// #bibliography("works.bib")
 diff --git a/docs/overview.md b/docs/overview.md
 index bc7f14fc..d51a514b 100644
 --- a/docs/overview.md
@@ -547,7 +543,7 @@ index de2af62f..420b1c8c 100644
 +Función [figura]($figure)
 \ No newline at end of file
 diff --git a/docs/tutorial/welcome.md b/docs/tutorial/welcome.md
-index 18b65aef..c3f79500 100644
+index 18b65aef..7180011e 100644
 --- a/docs/tutorial/welcome.md
 +++ b/docs/tutorial/welcome.md
 @@ -1,44 +1,44 @@
@@ -604,7 +600,7 @@ index 18b65aef..c3f79500 100644
 -## What you will learn { #learnings }
 -This tutorial has four chapters. Each chapter builds on the previous one. Here
 -is what you will learn in each of them:
-+## Lo que aprenderás { #aprendizajes }
++## Lo que aprenderás { #learnings }
 +Este tutorial tiene cuatro capítulos. Cada capítulo se basa en el anterior. Aquí
 +es lo que aprenderás en cada uno de ellos:
  
@@ -619,9 +615,9 @@ index 18b65aef..c3f79500 100644
 -   from the paper you created in the previous chapter.
 +1. [Escribir en Typst:]($tutorial/writing-in-typst) Aprenda a escribir texto y
 +    insertar imágenes, ecuaciones y otros elementos.
-+2. [Formato:]($tutorial/formato) Aprenda a ajustar el formato
++2. [Formato:]($tutorial/formatting) Aprenda a ajustar el formato
 +    de su documento, incluido el tamaño de fuente, los estilos de encabezado y más.
-+3. [Estilo avanzado:]($tutorial/estilo avanzado) Crea una página compleja
++3. [Estilo avanzado:]($tutorial/advanced-styling) Crea una página compleja
 +    Diseño de un artículo científico con características tipográficas como un autor.
 +    lista y encabezados preliminares.
 +4. [Hacer una plantilla:]($tutorial/making-a-template) Cree una plantilla reutilizable
