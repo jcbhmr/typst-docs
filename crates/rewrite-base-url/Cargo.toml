@@ -1,0 +1,10 @@
+[package]
+name = "rewrite-base-url"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.5.1", features = ["derive"] }
+lol_html = "1.2.0"
+url = "2.5.0"
+walkdir = "2.4.0"

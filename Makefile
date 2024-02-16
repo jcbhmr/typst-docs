@@ -3,7 +3,8 @@ SRC_LOCALES := es zh
 build:
 	for locale in $(SRC_LOCALES); do \
 		mkdir -p "_site/$$locale"; \
-		(cd "crates/typst-$$locale" && cargo run --package typst-docs -- -o "../../_site/$$locale" $(TYPSTDOCSFLAGS)); \
+		(cd "crates/typst-$$locale" && cargo run --package typst-docs --features=cli --target-dir=../../target -- -o "../../_site/$$locale" $(TYPSTDOCSFLAGS)); \
+		cargo run --package rewrite-base-url -- --base-url "/$$locale" "_site/$$locale"; \
 	done
 	mkdir -p _site
 	cp -f public/index.html _site
