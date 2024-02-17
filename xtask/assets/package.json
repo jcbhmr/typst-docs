@@ -1,0 +1,16 @@
+{
+    "type": "module",
+    "scripts": {
+        "dev": "vitepress dev",
+        "build": "vitepress build",
+        "format": "prettier -w ."
+    },
+    "dependencies": {
+        "vitepress": "latest",
+        "vue": "latest",
+        "vue-tsc": "latest",
+        "typescript": "latest",
+        "@types/node": "latest",
+        "prettier": "latest"
+    }
+}
