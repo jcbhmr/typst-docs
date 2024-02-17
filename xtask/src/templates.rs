@@ -72,6 +72,7 @@ pub struct VitepressConfigLocaleTemplate<'a> {
     pub locale: &'a str,
     pub title: &'a str,
     pub description: &'a str,
+    pub root_pages: &'a [PageModel],
 }
 
 #[derive(Template)]

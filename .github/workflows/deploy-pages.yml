@@ -29,7 +29,7 @@ jobs:
       - uses: actions-rust-lang/setup-rust-toolchain@v1
       - id: configure-pages
         uses: actions/configure-pages@v4
-      - run: make build
+      - run: cargo xtask build
         env:
           BASE_URL: ${{ steps.configure-pages.outputs.base_url }}/
           BASE_PATH: ${{ steps.configure-pages.outputs.base_path }}/

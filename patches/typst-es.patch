@@ -1,6 +1,24 @@
+diff --git a/crates/typst-docs/Cargo.toml b/crates/typst-docs/Cargo.toml
+index 7b444b9b..4d32b393 100644
+--- a/crates/typst-docs/Cargo.toml
++++ b/crates/typst-docs/Cargo.toml
+@@ -10,8 +10,13 @@ publish = false
+ doctest = false
+ bench = false
+ 
++[features]
++cli = ["typst-render", "clap"]
++
+ [dependencies]
+ typst = { workspace = true }
++typst-render = { workspace = true, optional = true }
++clap = { workspace = true, optional = true }
+ comemo = { workspace = true }
+ ecow = { workspace = true }
+ heck = { workspace = true }
 diff --git a/crates/typst-docs/src/main.rs b/crates/typst-docs/src/main.rs
 new file mode 100644
-index 00000000..1a8b7d52
+index 00000000..81c1d17b
 --- /dev/null
 +++ b/crates/typst-docs/src/main.rs
 @@ -0,0 +1,115 @@
@@ -119,3 +137,4 @@ index 00000000..1a8b7d52
 +    eprintln!("All done!");
 +    Ok(())
 +}
+\ No newline at end of file

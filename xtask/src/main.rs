@@ -4,7 +4,7 @@ mod templates;
 use std::{
     env::{args, set_current_dir},
     error::Error,
-    fs::{create_dir_all, rename, write},
+    fs::{create_dir_all, remove_dir_all, rename, write},
     panic::catch_unwind,
     path::Path,
 };
@@ -19,6 +19,7 @@ use typst_docs::{
 };
 use xshell::{cmd, Shell};
 use include_dir::{include_dir, Dir};
+// use lol_html::{element, rewrite_str, RewriteStrSettings};
 
 use crate::templates::{IndexTemplate, VitepressConfigIndexTemplate, VitepressConfigLocaleTemplate};
 use crate::typst_docs_de::{PageModelDef, PageModelVecHelper};
@@ -29,15 +30,17 @@ const SRC_LOCALES: &[&str] = &["es", "zh"];
 
 fn build() -> Result<(), Box<dyn Error>> {
     let sh = Shell::new()?;
+    remove_dir_all("out")?;
     for locale in SRC_LOCALES {
         eprintln!("Building {locale} docs");
 
         let manifest_path = format!("crates/typst-{locale}/crates/typst-docs/Cargo.toml");
         let out_dir = Path::new("out").join(&locale);
+        let public_dir = Path::new("out").join("public");
 
         let stdout = cmd!(
             sh,
-            "cargo run --manifest-path {manifest_path} --features=cli -- --out-dir {out_dir}"
+            "cargo run --manifest-path {manifest_path} --features=cli --target-dir=target -- --out-dir {public_dir}"
         )
         .read()?;
         print!("{stdout}");
@@ -72,7 +75,7 @@ fn build() -> Result<(), Box<dyn Error>> {
             }
             path.push(route_path);
 
-            let md = match &page.body {
+            let html = match &page.body {
                 BodyModel::Category(category) => CategoryTemplate { page, category }.render()?,
                 BodyModel::Func(func) => FuncTemplate { page, func }.render()?,
                 BodyModel::Group(group) => GroupTemplate { page, group }.render()?,
@@ -82,13 +85,13 @@ fn build() -> Result<(), Box<dyn Error>> {
                 BodyModel::Type(type_) => TypeTemplate { page, type_ }.render()?,
             };
             eprintln!(
-                "Generated {} chars of Markdown for {:?}",
-                md.len(),
+                "Generated {} chars of HTML for {:?}",
+                html.len(),
                 &page.route
             );
 
             create_dir_all(path.parent().ok_or("no parent")?)?;
-            write(&path, md)?;
+            write(&path, html)?;
             eprintln!("Created {:?}", &path);
         }
         eprintln!("Created all Markdown files for {locale}");
@@ -98,8 +101,9 @@ fn build() -> Result<(), Box<dyn Error>> {
             label: &locale,
             locale: &locale,
             title: "Typst Documentation",
+            root_pages: &root_pages,
         }.render()?;
-        let path = out_dir.join(".vitepress").join("config").join(format!("{locale}.ts"));
+        let path = Path::new("out").join(".vitepress").join("config").join(format!("{locale}.ts"));
         create_dir_all(path.parent().ok_or("no parent")?)?;
         write(&path, ts)?;
         eprintln!("Created {locale} config file {path:?}");
@@ -126,17 +130,20 @@ fn build() -> Result<(), Box<dyn Error>> {
     create_dir_all(path.parent().ok_or("no parent")?)?;
     write(&path, index)?;
     eprintln!("Created index file {path:?}");
-
+    
     create_dir_all("out")?;
     ASSETS.extract("out")?;
-    eprintln!("Extracted assets to out");
+    eprintln!("Extracted static assets to out");
 
     let sh = Shell::new()?;
+    create_dir_all("out")?;
     sh.change_dir("out");
     cmd!(sh, "npm install").run()?;
     cmd!(sh, "npm run build").run()?;
     
+    remove_dir_all("_site")?;
     rename("out/.vitepress/dist", "_site")?;
+    eprintln!("Moved final site to '_site'");
 
     Ok(())
 }
@@ -146,10 +153,11 @@ fn diff() -> Result<(), Box<dyn Error>> {
     create_dir_all("patches")?;
     for locale in SRC_LOCALES {
         let patch_file = format!("patches/typst-{locale}.patch");
-        cmd!(sh, "git -C crates/typst-{locale} reset --hard").run()?;
+        cmd!(sh, "git -C crates/typst-{locale} reset").run()?;
         cmd!(sh, "git -C crates/typst-{locale} add -AN").run()?;
         let stdout = cmd!(sh, "git -C crates/typst-{locale} diff --binary").read()?;
-        write(patch_file, stdout)?;
+        write(&patch_file, stdout)?;
+        eprintln!("Collected stdout and wrote to {patch_file:?}");
     }
     Ok(())
 }
@@ -158,6 +166,7 @@ fn apply() -> Result<(), Box<dyn Error>> {
     let sh = Shell::new()?;
     for locale in SRC_LOCALES {
         let patch_file = format!("patches/typst-{locale}.patch");
+        cmd!(sh, "git -C crates/typst-{locale} add -AN").run()?;
         cmd!(sh, "git -C crates/typst-{locale} reset --hard").run()?;
         cmd!(sh, "git -C crates/typst-{locale} apply ../../{patch_file}").run()?;
     }
