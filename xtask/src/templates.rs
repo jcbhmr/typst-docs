@@ -10,9 +10,12 @@ use typst_docs::{
     StrParam, SymbolModel, SymbolsModel, TypeModel,
 };
 
+use crate::Locale;
+
 #[derive(Template)]
 #[template(path = "category.md")]
 pub struct CategoryTemplate<'a> {
+    pub locale: &'a Locale,
     pub page: &'a PageModel,
     pub category: &'a CategoryModel,
 }
@@ -20,6 +23,7 @@ pub struct CategoryTemplate<'a> {
 #[derive(Template)]
 #[template(path = "func.md")]
 pub struct FuncTemplate<'a> {
+    pub locale: &'a Locale,
     pub page: &'a PageModel,
     pub func: &'a FuncModel,
 }
@@ -27,6 +31,7 @@ pub struct FuncTemplate<'a> {
 #[derive(Template)]
 #[template(path = "group.md")]
 pub struct GroupTemplate<'a> {
+    pub locale: &'a Locale,
     pub page: &'a PageModel,
     pub group: &'a GroupModel,
 }
@@ -34,6 +39,7 @@ pub struct GroupTemplate<'a> {
 #[derive(Template)]
 #[template(path = "html.md")]
 pub struct HtmlTemplate<'a> {
+    pub locale: &'a Locale,
     pub page: &'a PageModel,
     pub html: &'a Html,
 }
@@ -41,6 +47,7 @@ pub struct HtmlTemplate<'a> {
 #[derive(Template)]
 #[template(path = "packages.md")]
 pub struct PackagesTemplate<'a> {
+    pub locale: &'a Locale,
     pub page: &'a PageModel,
     pub packages: &'a Html,
 }
@@ -48,6 +55,7 @@ pub struct PackagesTemplate<'a> {
 #[derive(Template)]
 #[template(path = "symbols.md")]
 pub struct SymbolsTemplate<'a> {
+    pub locale: &'a Locale,
     pub page: &'a PageModel,
     pub symbols: &'a SymbolsModel,
 }
@@ -55,6 +63,7 @@ pub struct SymbolsTemplate<'a> {
 #[derive(Template)]
 #[template(path = "type.md")]
 pub struct TypeTemplate<'a> {
+    pub locale: &'a Locale,
     pub page: &'a PageModel,
     pub type_: &'a TypeModel,
 }
@@ -62,21 +71,18 @@ pub struct TypeTemplate<'a> {
 #[derive(Template)]
 #[template(path = ".vitepress/config/index.ts", escape = "none")]
 pub struct VitepressConfigIndexTemplate<'a> {
-    pub locales: &'a [(&'a str, &'a str)],
+    pub locales: &'a [Locale],
 }
 
 #[derive(Template)]
 #[template(path = ".vitepress/config/locale.ts", escape = "none")]
 pub struct VitepressConfigLocaleTemplate<'a> {
-    pub label: &'a str,
-    pub locale: &'a str,
-    pub title: &'a str,
-    pub description: &'a str,
+    pub locale: &'a Locale,
     pub root_pages: &'a [PageModel],
 }
 
 #[derive(Template)]
 #[template(path = "index.md")]
 pub struct IndexTemplate<'a> {
-    pub locales: &'a [(&'a str, &'a str)],
+    pub locales: &'a [Locale],
 }

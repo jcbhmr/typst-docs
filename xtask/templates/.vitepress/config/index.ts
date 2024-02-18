@@ -1,7 +1,7 @@
 import { defineConfig } from "vitepress";
 import root from "./root.ts";
-{% for (ident, bcp47) in locales %}
-import {{ ident }} from "./{{ bcp47 }}.ts";
+{% for (i, locale) in locales.iter().enumerate() %}
+import locale_{{ i }} from "./{{ locale.bcp47 }}.ts";
 {% endfor %}
 
 // https://vitepress.dev/reference/site-config
@@ -14,8 +14,8 @@ export default defineConfig({
 
   locales: {
     root,
-    {% for (ident, bcp47) in locales %}
-      {{ ident }},
+    {% for (i, locale) in locales.iter().enumerate() %}
+      {{ locale.bcp47|json }}: locale_{{ i }},
     {% endfor %}
   },
 

@@ -1,33 +1,29 @@
 ---
 # https://vitepress.dev/reference/default-theme-home-page
 layout: home
+pageClass: my-index-page
 
 features:
   - title: English
-    linkText: Official Typst documentation in English
     link: https://typst.app/docs
-  - title: Français
-    linkText: Documentation Typst en français
-    link: /fr/
-  - title: "简体中文"
-    linkText: 中文打字员文档
-    link: /zh/
+{% for locale in locales %}
+  - title: {{ locale.name }}
+    link: /{{ locale.bcp47 }}/docs/
+{% endfor %}
 ---
 
 <style>
-  .VPContent.is-home {
+  .my-index-page .VPContent {
     display: flex;
     align-items: center;
     justify-content: center;
   }
-  .VPContent.is-home .VPLink .title {
+  .my-index-page .VPContent .VPLink .title {
     font-size: 1.5em;
     line-height: 1.46;
-  }
-  .VPContent.is-home .VPLink .details {
-    font-size: 1em;
-    line-height: 1.46;
-    color: inherit;
+    width: 100px;
+    text-align: center;
+    white-space: nowrap;
   }
 </style>
 
