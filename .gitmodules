@@ -1,8 +1,8 @@
 [submodule "crates/typst-es"]
-	path = es/typst
+	path = es
 	url = https://github.com/typst/typst
 	ignore = dirty
 [submodule "crates/typst-zh"]
-	path = zh/typst
+	path = zh
 	url = https://github.com/typst/typst
 	ignore = dirty
