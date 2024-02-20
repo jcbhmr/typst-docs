@@ -1,3 +1,23 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index b5a869b6..d91279f9 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -2714,6 +2714,7 @@ dependencies = [
+ name = "typst-docs"
+ version = "0.10.0"
+ dependencies = [
++ "clap",
+  "comemo",
+  "ecow",
+  "heck",
+@@ -2725,6 +2726,7 @@ dependencies = [
+  "syntect",
+  "typed-arena",
+  "typst",
++ "typst-render",
+  "unicode_names2",
+  "unscanny",
+  "yaml-front-matter",
 diff --git a/crates/typst-docs/Cargo.toml b/crates/typst-docs/Cargo.toml
 index 7b444b9b..4d32b393 100644
 --- a/crates/typst-docs/Cargo.toml
