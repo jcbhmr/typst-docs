@@ -1,3 +1,6 @@
 [submodule "es/typst"]
-	path = es
+	path = typst-es
 	url = https://github.com/typst/typst.git
+[submodule "themes/adidoks"]
+	path = themes/adidoks
+	url = https://github.com/aaranxu/adidoks.git
