@@ -1,0 +1,17 @@
+base_url = "/"
+compile_sass = false
+build_search_index = true
+theme = "adidoks"
+
+[languages.es]
+
+[languages.zh]
+
+[markdown]
+highlight_code = true
+extra_syntaxes_and_themes = ["syntaxes"]
+
+[extra]
+
+[extra.footer]
+info = 'Powered by <a href="https://www.getzola.org/">Zola</a> and <a href="https://github.com/aaranxu/adidoks">AdiDoks</a>'
