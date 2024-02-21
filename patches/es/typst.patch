@@ -1,54 +1,55 @@
-diff --git a/Cargo.lock b/Cargo.lock
-index b5a869b6..d91279f9 100644
---- a/Cargo.lock
-+++ b/Cargo.lock
-@@ -2714,6 +2714,7 @@ dependencies = [
- name = "typst-docs"
- version = "0.10.0"
- dependencies = [
-+ "clap",
-  "comemo",
-  "ecow",
-  "heck",
-@@ -2725,6 +2726,7 @@ dependencies = [
-  "syntect",
-  "typed-arena",
-  "typst",
-+ "typst-render",
-  "unicode_names2",
-  "unscanny",
-  "yaml-front-matter",
+diff --git a/.gitignore b/.gitignore
+index c17c6399..6b7bb4e5 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -28,3 +28,6 @@ package-lock.json
+ # Nix
+ /result
+ .direnv/
++
++# typst-docs output
++_site
 diff --git a/crates/typst-docs/Cargo.toml b/crates/typst-docs/Cargo.toml
-index 7b444b9b..4d32b393 100644
+index 7b444b9b..bb32aaf2 100644
 --- a/crates/typst-docs/Cargo.toml
 +++ b/crates/typst-docs/Cargo.toml
-@@ -10,8 +10,13 @@ publish = false
+@@ -10,6 +10,13 @@ publish = false
  doctest = false
  bench = false
  
++[[bin]]
++name = "typst-docs"
++required-features = ["cli"]
++
 +[features]
-+cli = ["typst-render", "clap"]
++cli = ["clap", "typst-render", "serde_json"]
 +
  [dependencies]
  typst = { workspace = true }
-+typst-render = { workspace = true, optional = true }
-+clap = { workspace = true, optional = true }
  comemo = { workspace = true }
- ecow = { workspace = true }
- heck = { workspace = true }
+@@ -25,6 +32,9 @@ typed-arena = { workspace = true }
+ unicode_names2 = { workspace = true }
+ unscanny = { workspace = true }
+ yaml-front-matter = { workspace = true }
++clap = { workspace = true, optional = true }
++typst-render = { workspace = true, optional = true }
++serde_json = { workspace = true, optional = true }
+ 
+ [lints]
+ workspace = true
 diff --git a/crates/typst-docs/src/main.rs b/crates/typst-docs/src/main.rs
 new file mode 100644
-index 00000000..81c1d17b
+index 00000000..fb4385e5
 --- /dev/null
 +++ b/crates/typst-docs/src/main.rs
-@@ -0,0 +1,115 @@
+@@ -0,0 +1,107 @@
 +use std::{
 +    fs::{create_dir_all, write},
 +    path::{Path, PathBuf},
 +};
 +
 +use clap::Parser;
-+use typst::{model::Document, visualize::Color, layout::Frame};
++use typst::{model::Document, visualize::Color};
 +use typst_docs::{provide, Html, Resolver};
 +use typst_render::render;
 +
@@ -67,7 +68,7 @@ index 00000000..81c1d17b
 +        &self,
 +        hash: u128,
 +        source: Option<Html>,
-+        frames: &[Frame],
++        document: &Document,
 +    ) -> typst_docs::Html {
 +        if self.verbose {
 +            eprintln!(
@@ -76,8 +77,7 @@ index 00000000..81c1d17b
 +            );
 +        }
 +
-+        // let frame = &document.pages.first().expect("page 0").frame;
-+        let frame = &frames.first().expect("frame 0");
++        let frame = &document.pages.first().expect("page 0").frame;
 +        let pixmap = render(frame, 2.0, Color::WHITE);
 +        let filename = format!("{hash:x}.png");
 +        let path = self.out_dir.join("assets").join("docs").join(&filename);
@@ -89,18 +89,11 @@ index 00000000..81c1d17b
 +        if let Some(code) = source {
 +            let code_safe = code.as_str();
 +            Html::new(format!(
-+                r#"<div class="previewed-code">
-+                    <pre>{code_safe}</pre>
-+                    <div class="preview">
-+                        <img src="{src}" alt="Preview" width="480" height="190" />
-+                    </div>
-+                </div>"#
++                r#"<div class="previewed-code"><pre>{code_safe}</pre><div class="preview"><img src="{src}" alt="Preview" /></div></div>"#
 +            ))
 +        } else {
 +            Html::new(format!(
-+                r#"<div class="preview">
-+                <img src="{src}" alt="Preview" width="480" height="190" />
-+            </div>"#
++                r#"<div class="preview"><img src="{src}" alt="Preview" /></div>"#
 +            ))
 +        }
 +    }
@@ -157,4 +150,3 @@ index 00000000..81c1d17b
 +    eprintln!("All done!");
 +    Ok(())
 +}
-\ No newline at end of file

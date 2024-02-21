@@ -1,21 +1,19 @@
 LANGUAGE_TAGS := es zh
 
-build:
-	rm -rf _site && cp -r public _site
+prebuild:
 	for t in $(LANGUAGE_TAGS); do \
-		CARGO_TARGET_DIR="$$PWD/target" make -C "$$t" build-docs; \
-		mv "$$t/public" "_site/$$t"
+		export CARGO_TARGET_DIR="$$PWD/target" \
+		&& out_json="$$PWD/$$t/typst-docs.json" \
+		&& out_dir="$$PWD/public/$$t" \
+		&& (cd "$$t/typst" && cargo run -p typst-docs --features=cli -- -o "$$out_dir" > "$$out_json"); \
 	done
 
-setup:
-	for t in $(LANGUAGE_TAGS); do make -C "$$t" setup; done
-
 diff:
-	mkdir -p patches
-	for t in $(LANGUAGE_TAGS); do \
-		git -C "$$t" reset \
-		&& git -C "$$t" add -AN \
-		&& git -C "$$t" diff --binary $(GITDIFFFLAGS) > "patches/$$t.patch"; \
+	for d in $$(git config --file .gitmodules --get-regexp path | awk '{ print $$2 }'); do \
+		mkdir -p "$$(dirname "patches/$$d.patch")" \
+		&& git -C "$$d" reset \
+		&& git -C "$$d" add -AN \
+		&& git -C "$$d" diff --binary $(GITDIFFFLAGS) > "patches/$$d.patch"; \
 	done
 
 apply:
