@@ -2,4 +2,4 @@
 title = "Typst Docs Translated"
 +++
 
-Hello world!
+Spanish text

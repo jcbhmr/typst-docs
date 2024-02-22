@@ -1,5 +1,6 @@
 #!/usr/bin/env -S deno run -A
 import { readFile, writeFile, mkdir, rm, cp } from "node:fs/promises";
+import { existsSync } from "node:fs"
 import { resolve, join, dirname } from "node:path";
 import { pathToFileURL, fileURLToPath } from "node:url";
 import { $ } from "npm:execa@8.0.1";
@@ -9,24 +10,46 @@ import process from "node:process";
 process.env.NODE_DEBUG ||= "";
 process.env.NODE_DEBUG += " execa";
 
+const configText = await readFile("config.toml", "utf8");
+const config = TOML.parse(configText) as ZolaConfig.Config;
+const languageTags = Object.keys(config.languages);
+
+const sharedCargoTargetDir = resolve("target");
+const assetsDir = resolve("static/assets");
+const contentDir = resolve("content");
+
 async function build() {
-  const configText = await readFile("config.toml", "utf8");
-  const config = TOML.parse(configText);
-  const languageTags = Object.keys(config.languages);
-  const sharedCargoTargetDir = resolve("target");
   for (const t of languageTags) {
-    const typstRoot = resolve(`typst-${t}`);
-    const base = "/";
-    const assetsDir = resolve("static");
     const { stdout } = await $({
-      cwd: typstRoot,
+      cwd: resolve(`typst-${t}`),
       stdio: ["inherit", "pipe", "inherit"],
       env: {
         CARGO_TARGET_DIR: sharedCargoTargetDir,
       },
-    })`cargo run -p typst-docs -F=cli -- --base=${base} --assets-dir=${assetsDir}`;
-    const allPages = JSON.parse(stdout) as TypstDocs.PageModel;
-    console.log(allPages);
+    })`cargo run -p typst-docs -F=cli -- --base=${`/${t}/`} --assets-dir=${assetsDir}`;
+    console.log(stdout)
+    const rootPages = JSON.parse(stdout) as TypstDocs.PageModel;
+    const allPages = rootPages.flatMap(function f(p): TypstDocs.PageModel[] {
+      return [p, ...p.children.flatMap(f)];
+    });
+    for (const p of allPages) {
+      if (p.body.kind !== "html") continue;
+      let routePath = p.route; // "/es/community/"
+      routePath = "." + routePath.slice(`/${t}`.length); // "./community/"
+      routePath = routePath.slice(0, -1) + `.${t}.md` // "./community.es.md"
+      const md = `\
+---
+title: ${JSON.stringify(p.title)}
+template: ${p.body.kind}.html
+extra:
+  page: ${JSON.stringify(p)}
+  ${p.body.kind}: ${JSON.stringify(p.body.content)}
+---`;
+      const path = resolve(contentDir, routePath);
+      await mkdir(dirname(path), { recursive: true });
+      await writeFile(path, md);
+      console.error("%cWrite%c %o", "color:green;font-weight:bold", "", path);
+    }
   }
 }
 
@@ -58,13 +81,13 @@ namespace TypstDocs {
   }
 
   export type BodyModel =
-    | { kind: "Html"; content: Html }
-    | { kind: "Category"; content: CategoryModel }
-    | { kind: "Func"; content: FuncModel }
-    | { kind: "Group"; content: GroupModel }
-    | { kind: "Type"; content: TypeModel }
-    | { kind: "Symbols"; content: SymbolsModel }
-    | { kind: "Packages"; content: Html };
+    | { kind: "html"; content: Html }
+    | { kind: "category"; content: CategoryModel }
+    | { kind: "func"; content: FuncModel }
+    | { kind: "group"; content: GroupModel }
+    | { kind: "type"; content: TypeModel }
+    | { kind: "symbols"; content: SymbolsModel }
+    | { kind: "packages"; content: Html };
 
   export interface CategoryModel {
     name: string;
@@ -153,4 +176,12 @@ namespace TypstDocs {
     markup: SymbolModel[];
     math: SymbolModel[];
   }
+}
+
+namespace ZolaConfig {
+  export interface Config {
+    languages: Record<string, LanguageConfig>;
+  }
+
+  export interface LanguageConfig {}
 }
