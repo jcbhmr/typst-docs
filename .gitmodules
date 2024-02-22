@@ -4,3 +4,6 @@
 [submodule "themes/adidoks"]
 	path = themes/adidoks
 	url = https://github.com/aaranxu/adidoks.git
+[submodule "themes/zola_easydocs_theme"]
+	path = themes/zola_easydocs_theme
+	url = https://github.com/codeandmedia/zola_easydocs_theme.git
