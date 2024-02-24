@@ -17,8 +17,8 @@ diff:
 	done
 
 apply:
-	shopt -s globstar \
-	&& for f in patches/**; do \
+	# TODO: Support spaces in file names
+	for f in $$(find patches -type f); do \
 		if [ -d "$$f" ]; then continue; fi; \
 		s="$${f#patches/}" \
 		&& s="$${s%.patch}" \
