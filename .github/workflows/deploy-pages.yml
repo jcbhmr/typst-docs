@@ -36,7 +36,7 @@ jobs:
       - run: make build
         env:
           RUSTFLAGS: -Awarnings
-          BASE_URL: ${{ steps.configure-pages.outputs.base_url }}/
+          # BASE_URL: ${{ steps.configure-pages.outputs.base_url }}/
           BASE_PATH: ${{ steps.configure-pages.outputs.base_path }}/
       - uses: actions/upload-pages-artifact@v3
         with:
