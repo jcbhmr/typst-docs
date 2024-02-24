@@ -12,7 +12,6 @@ toml = "0.8.10"
 ecow = "0.2.0"
 typst-docs = { git = "https://github.com/typst/typst.git", version = "0.10.0" }
 ```
-#![allow(warnings)]
 use xshell::{Shell, cmd};
 use std::error::Error;
 use serde_json::Value;
