@@ -5,7 +5,7 @@ setup:
 	rustup toolchain install nightly
 	if ! command -v zola; then \
 		command -v cargo-binstall || curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash; \
-	 	cargo binstall --git https://github.com/getzola/zola.git zola; \
+	 	cargo binstall -y --git https://github.com/getzola/zola.git zola; \
 	done
 
 diff:

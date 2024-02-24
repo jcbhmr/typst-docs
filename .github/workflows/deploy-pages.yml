@@ -27,11 +27,13 @@ jobs:
         with:
           submodules: true
       - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: cargo-bins/cargo-binstall@main
       - run: rustup toolchain install nightly
-      - run: ./scripts/apply.rs
+      - run: cargo binstall -y --git https://github.com/getzola/zola.git zola
+      - run: make apply
       - id: configure-pages
         uses: actions/configure-pages@v4
-      - run: ./scripts/build.rs
+      - run: make build
         env:
           BASE_URL: ${{ steps.configure-pages.outputs.base_url }}/
           BASE_PATH: ${{ steps.configure-pages.outputs.base_path }}/
