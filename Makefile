@@ -19,9 +19,9 @@ diff:
 apply:
 	# TODO: Support spaces in file names
 	for f in $$(find patches -type f); do \
-		if [ -d "$$f" ]; then continue; fi; \
 		s="$${f#patches/}" \
 		&& s="$${s%.patch}" \
+		&& if [ ! -d "$$s" ]; then continue; fi \
 		&& git -C "$$s" add -AN \
 		&& git -C "$$s" reset --hard \
 		&& git -C "$$s" apply $(GITAPPLYFLAGS) "$$PWD/$$f"; \
