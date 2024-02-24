@@ -1,9 +1,5 @@
-# zola output dir
-/public/
+# cobalt output dir
+/_site/
 
 # shared cargo build dir
 /target/
-
-# generated zola content
-/content/docs/
-/static/assets/
