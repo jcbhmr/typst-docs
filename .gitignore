@@ -1,5 +1,8 @@
-# cobalt output dir
-/_site/
-
+# intermediate build stuff
+/out/
+/content/*
+!/content/_index.md
+# zola output dir
+/public/
 # shared cargo build dir
 /target/

@@ -16,7 +16,7 @@ typst-docs = { git = "https://github.com/typst/typst.git", version = "0.10.0" }
 use xshell::{Shell, cmd};
 use std::error::Error;
 use serde_json::Value;
-use std::fs;
+use std::{fs, env};
 use crate::typst_docs_de::PageModelVecHelper;
 use typst_docs::{
     provide, BodyModel, CategoryModel, Commit, FuncModel, GroupModel, Html, PageModel, Resolver,
@@ -319,19 +319,33 @@ fn main() -> Result<(), Box<dyn Error>> {
     let text = fs::read_to_string("config.toml")?;
     let config_toml = text.parse::<Table>()?;
     let languages = config_toml["languages"].as_table().ok_or("not table")?;
-    let language_tags = languages.keys();
+    let language_tags: Vec<&String> = languages.keys().collect();
+
+    let mut base_root = env::var("BASE_URL").unwrap_or_else(|_| env::var("BASE_PATH").unwrap_or_else(|_| "/".into()));
+    if !base_root.ends_with('/') {
+        base_root.push('/');
+    }
 
     // 2. Generate the `pages.json` data file for each language.
-    for t in language_tags {
+    for t in &language_tags {
         eprintln!("Generating pages data for {t}");
 
-        let base = format!("/typst-docs/es/");
-        let assets_dir = PathBuf::from(format!("out/{t}/assets"));
-        let out_file = PathBuf::from(format!("out/{t}/pages.json"));
+        let target_dir = env::current_dir()?.join("target");
+        let base = format!("{base_root}{t}/");
+        let assets_dir = env::current_dir()?.join("out").join(&t).join("assets");
+        let out_file = env::current_dir()?.join("out").join(&t).join("pages.json");
 
         let sh = Shell::new()?;
         sh.change_dir(t);
-        cmd!(sh, "cargo run -p typst-docs -F=cli -- --base={base} --assets-dir={assets_dir} --out-file={out_file}").run()?;
+        cmd!(sh, "cargo run -p typst-docs -F=cli --target-dir={target_dir} -- --base={base} --assets-dir={assets_dir} --out-file={out_file}").run()?;
+    }
+
+    // 3. Use the `pages.json` data to generate Zola content pages.
+    for t in &language_tags {
+        eprintln!("Rendering Zola content pages for {t}");
+
+        let out_file = env::current_dir()?.join("out").join(&t).join("pages.json");
+        let base = format!("{base_root}{t}/");
 
         let text = fs::read_to_string(out_file)?;
         let root_pages: Vec<PageModel> = serde_json::from_str(&text).map(|PageModelVecHelper(v)| v)?;
@@ -347,7 +361,58 @@ fn main() -> Result<(), Box<dyn Error>> {
         for root_page in &root_pages {
             all_pages_helper(root_page, &mut all_pages);
         }
+        eprintln!("{} total pages", all_pages.len());
+
+        for page in &all_pages {
+            let mut path = env::current_dir()?.join("content");
+            let mut route_path = page.route.to_string();
+            let is_section = route_path.ends_with("/") && all_pages.iter().filter(|p| p.route != page.route).any(|p| p.route.starts_with(page.route.as_str()));
+            if is_section {
+                route_path.push_str(&format!("_index.{t}.md"));
+            } else {
+                if route_path.ends_with('/') {
+                    route_path.remove(route_path.len() - 1);
+                }
+                route_path.push_str(&format!(".{t}.md"));
+            }
+            let mut route_path = route_path.replacen(&base, "/", 1);
+            if route_path.starts_with('/') {
+                route_path.remove(0);
+            }
+            path.push(route_path);
+
+            let page_json = serde_json::to_string(&page)?;
+            let kind = match &page.body {
+                BodyModel::Category(_) => "category",
+                BodyModel::Func(_) => "func",
+                BodyModel::Group(_) => "group",
+                BodyModel::Html(_) => "html",
+                BodyModel::Packages(_) => "packages",
+                BodyModel::Symbols(_) => "symbols",
+                BodyModel::Type(_) => "type",
+            };
+            let template = format!("{kind}-{}.html", if is_section { "section" } else { "page" });
+            let body_json = match &page.body {
+                BodyModel::Category(x) => serde_json::to_string(x)?,
+                BodyModel::Func(x) => serde_json::to_string(x)?,
+                BodyModel::Group(x) => serde_json::to_string(x)?,
+                BodyModel::Html(x) => serde_json::to_string(x)?,
+                BodyModel::Packages(x) => serde_json::to_string(x)?,
+                BodyModel::Symbols(x) => serde_json::to_string(x)?,
+                BodyModel::Type(x) => serde_json::to_string(x)?,
+            };
+            let md = format!("---\ntemplate: {template}\nextra:\n  page: {page_json}\n  {kind}: {body_json}\n---");
+
+            fs::create_dir_all(path.parent().ok_or("no parent")?)?;
+            fs::write(&path, md)?;
+            eprintln!("Write {path:?}");
+        }
     }
+
+    // 4. Run Zola to generate the final site!
+    let base_url = base_root;
+    let sh = Shell::new()?;
+    cmd!(sh, "zola build -f -u={base_url}").run()?;
 
     Ok(())
 }

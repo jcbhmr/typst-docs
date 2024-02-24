@@ -1,5 +1,5 @@
 # The URL the site will be built for
-base_url = "/typst-docs/"
+base_url = "/"
 
 # Whether to automatically compile all Sass files in the sass directory
 compile_sass = false
@@ -7,7 +7,8 @@ compile_sass = false
 # Whether to build a search index to be used later on by a JavaScript library
 build_search_index = false
 
-[languages.es]
+[languages.es.translations]
+packages_official_button_text = "Go to the official Typst packages list"
 
 [markdown]
 # Whether to do syntax highlighting
