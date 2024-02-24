@@ -12,7 +12,7 @@ toml = "0.8.10"
 ecow = "0.2.0"
 typst-docs = { git = "https://github.com/typst/typst.git", version = "0.10.0" }
 ```
-
+#![allow(warnings)]
 use xshell::{Shell, cmd};
 use std::error::Error;
 use serde_json::Value;
@@ -392,7 +392,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 BodyModel::Type(_) => "type",
             };
             let template = format!("{kind}-{}.html", if is_section { "section" } else { "page" });
-            let body_json = match &page.body {
+            let content_json = match &page.body {
                 BodyModel::Category(x) => serde_json::to_string(x)?,
                 BodyModel::Func(x) => serde_json::to_string(x)?,
                 BodyModel::Group(x) => serde_json::to_string(x)?,
@@ -401,7 +401,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 BodyModel::Symbols(x) => serde_json::to_string(x)?,
                 BodyModel::Type(x) => serde_json::to_string(x)?,
             };
-            let md = format!("---\ntemplate: {template}\nextra:\n  page: {page_json}\n  {kind}: {body_json}\n---");
+            let md = format!("---\ntemplate: {template}\nextra:\n  page: {page_json}\n  {kind}: {content_json}\n---");
 
             fs::create_dir_all(path.parent().ok_or("no parent")?)?;
             fs::write(&path, md)?;
