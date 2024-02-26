@@ -331,8 +331,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         let target_dir = env::current_dir()?.join("target");
         let base = format!("{base_root}{t}/");
-        let assets_dir = env::current_dir()?.join("out").join(&t).join("assets");
-        let out_file = env::current_dir()?.join("out").join(&t).join("pages.json");
+        let assets_dir = env::current_dir()?.join("static").join(&t).join("assets");
+        let out_file = env::current_dir()?.join("content").join(format!("pages.{t}.json"));
 
         let sh = Shell::new()?;
         sh.change_dir(t);
@@ -343,7 +343,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     for t in &language_tags {
         eprintln!("Rendering Zola content pages for {t}");
 
-        let out_file = env::current_dir()?.join("out").join(&t).join("pages.json");
+        let out_file = env::current_dir()?.join("content").join(format!("pages.{t}.json"));
         let base = format!("{base_root}{t}/");
 
         let text = fs::read_to_string(out_file)?;

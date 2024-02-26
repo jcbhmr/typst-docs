@@ -1,7 +1,7 @@
 # intermediate build stuff
-/out/
 /content/*
 !/content/_index.md
+/static/*/assets/
 # zola output dir
 /public/
 # shared cargo build dir
