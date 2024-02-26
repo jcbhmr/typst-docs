@@ -400,7 +400,16 @@ fn main() -> Result<(), Box<dyn Error>> {
                 BodyModel::Symbols(x) => serde_json::to_string(x)?,
                 BodyModel::Type(x) => serde_json::to_string(x)?,
             };
-            let md = format!("---\ntemplate: {template}\nextra:\n  page: {page_json}\n  {kind}: {content_json}\n---");
+            let title_json = serde_json::to_string(&page.title)?;
+            let description_json = serde_json::to_string(&page.description)?;
+            let md = format!(r#"---
+template: {template}
+title: {title_json}
+description: {description_json}
+extra:
+  page: {page_json}
+  {kind}: {content_json}
+---"#);
 
             fs::create_dir_all(path.parent().ok_or("no parent")?)?;
             fs::write(&path, md)?;
