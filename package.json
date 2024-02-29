@@ -13,9 +13,8 @@
   "scripts": {
     "diff": "node ./scripts/diff.js",
     "apply": "node ./scripts/apply.js",
-    "prebuild": "node ./scripts/prebuild.js",
     "build": "vitepress build",
-    "predev": "node ./scripts/prebuild.js",
+    "generate": "node ./scripts/generate.js",
     "dev": "vitepress dev",
     "format": "prettier -w ."
   }

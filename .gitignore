@@ -2,9 +2,6 @@
 **/.vitepress/cache
 **/.vitepress/dist
 
-# Generated pages data
-/*/pages.json
-
 # Shared Rust compilation spot
 /target/
 
