@@ -1,5 +1,7 @@
 build:
-	./build.rs
+	./generate-pages-json.rs
+	./generate-pages-md.js
+	vitepress build
 
 setup:
 	rustup toolchain install nightly
@@ -17,8 +19,7 @@ diff:
 	done
 
 apply:
-	# TODO: Support spaces in file names
-	for f in $$(find patches -type f); do \
+	find patches -type f -print0 | while IFS= read -r -d '' f; do \
 		s="$${f#patches/}" \
 		&& s="$${s%.patch}" \
 		&& if [ ! -d "$$s" ]; then continue; fi \
