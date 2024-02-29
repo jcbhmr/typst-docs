@@ -1,11 +1,11 @@
 <script setup>
-import Category from ".vitepress/theme/components/Category.vue"
-import Func from ".vitepress/theme/components/Func.vue"
-import Group from ".vitepress/theme/components/Group.vue"
-import Html from ".vitepress/theme/components/Html.vue"
-import Packages from ".vitepress/theme/components/Packages.vue"
-import Symbols from ".vitepress/theme/components/Symbols.vue"
-import Type from ".vitepress/theme/components/Type.vue"
+import Category from "@/components/Category.vue"
+import Func from "@/components/Func.vue"
+import Group from "@/components/Group.vue"
+import Html from "@/components/Html.vue"
+import Packages from "@/components/Packages.vue"
+import Symbols from "@/components/Symbols.vue"
+import Type from "@/components/Type.vue"
 </script>
 
 <Category v-if="$params.page.body.kind === 'category'" :page="$params.page" :category="$params.page.body.content" />
