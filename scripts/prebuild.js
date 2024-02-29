@@ -19,7 +19,3 @@ for (const t of languageTags) {
         cwd: resolve(t, "typst")
     })`cargo run -p typst-docs -F=cli --target-dir ${targetDir} -- --base=${base} --assets-dir=${assetsDir} --out-file=${outFile}`
 }
-
-for (const t of languageTags) {
-    const outFile = resolve(t, "pages.json")
-}

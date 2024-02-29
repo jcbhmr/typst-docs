@@ -1,6 +1,16 @@
 # All the submodules
 /es/typst/
 
+# https://vitepress.dev/
+**/.vitepress/cache
+**/.vitepress/dist
+
+# Generated pages data
+/*/pages.json
+
+# Shared Rust compilation spot
+/target/
+
 #region https://github.com/github/gitignore/blob/main/Node.gitignore
 # Logs
 logs
