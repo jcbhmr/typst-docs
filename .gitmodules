@@ -1,6 +1,3 @@
 [submodule "es"]
-	path = es
+	path = es/typst
 	url = https://github.com/typst/typst.git
-[submodule "themes/adidoks"]
-	path = themes/adidoks
-	url = https://github.com/aaranxu/adidoks.git
