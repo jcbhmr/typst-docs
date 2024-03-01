@@ -10,16 +10,19 @@ const root = {
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  // https://vitepress.dev/guide/i18n#internationalization
   locales: {
     root,
     es,
   },
 
+  mpa: true,
+
   // https://vitejs.dev/config/
   vite: {
     resolve: {
       alias: {
-        "@": resolve(".vitepress/theme"),
+        ".vitepress": resolve(".vitepress"),
       },
     },
   },

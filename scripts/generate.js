@@ -12,7 +12,7 @@ for (const t of languageTags) {
     const targetDir = resolve("target")
     const base = `${baseRoot}${t}/`
     const assetsDir = resolve("public", t, "assets")
-    const outFile = resolve(t, "pages.json")
+    const outFile = resolve(`pages.${t}.json`)
 
     await $({
         stdio: "inherit",
