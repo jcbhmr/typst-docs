@@ -24,22 +24,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          submodules: true
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
-      - uses: cargo-bins/cargo-binstall@main
-      - run: rustup toolchain install nightly
-      - run: cargo binstall -y --git https://github.com/getzola/zola.git zola
-      - run: make apply
+          node-version: latest
+          cache: npm
+      - run: npm ci
       - id: configure-pages
         uses: actions/configure-pages@v4
-      - run: make build
+      - run: npm run build
         env:
-          RUSTFLAGS: -Awarnings
-          # BASE_URL: ${{ steps.configure-pages.outputs.base_url }}/
+          BASE_URL: ${{ steps.configure-pages.outputs.base_url }}/
           BASE_PATH: ${{ steps.configure-pages.outputs.base_path }}/
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: public
+          path: .vitepress/dist
       - id: deploy-pages
         uses: actions/deploy-pages@v4
