@@ -10,7 +10,7 @@ const rootPages = JSON.parse(await readFile("es/pages.json", "utf8"));
 const sidebar = rootPages.map(function f(page) {
   const item: any = {
     text: page.title,
-    link: page.route.replace(base, "/es/") + "index",
+    link: page.route.replace(base, "/es/"),
   };
   if (page.children.length) {
     item.collapsed = true;
