@@ -16,8 +16,6 @@ export default defineConfig({
     es,
   },
 
-  mpa: true,
-
   // https://vitejs.dev/config/
   vite: {
     resolve: {
