@@ -4,6 +4,10 @@
 
 ## Development
 
+![Vite](https://img.shields.io/static/v1?style=for-the-badge&message=Vite&color=646CFF&logo=Vite&logoColor=FFFFFF&label=)
+![Vue.js](https://img.shields.io/static/v1?style=for-the-badge&message=Vue.js&color=222222&logo=Vue.js&logoColor=4FC08D&label=)
+![Markdown](https://img.shields.io/static/v1?style=for-the-badge&message=Markdown&color=000000&logo=Markdown&logoColor=FFFFFF&label=)
+
 ### Add a new language
 
 1. Run `git submodule add https://github.com/typst/typst.git $LANGUAGE_TAG` where `$LANGUAGE_TAG` is your new BCP-47 language tag to add a new patched submodule instance of Typst
@@ -13,6 +17,8 @@
 5. Run `npm run diff` to save any changes you make to the submodule that you added in step 1
 
 ### Edit the documentation content
+
+[![Open in Codeflow](https://developer.stackblitz.com/img/open_in_codeflow.svg)](https://pr.new/https://github.com/typst-community/typst-docs)
 
 You should run `npm run apply` with the submodule tree initialized and present (`git submodule update` if you didn't clone with `--recursive`) before doing any documentation editing. This `npm run apply` will use `git apply` to apply the patch files from `patches/*.patch` to the corresponding submodule. Do this before editing so that you're editing the patched version of the submodule. Then after you've finished editing the submodule use `npm run diff` to save the diff of all the changes made to the submodule backc into `patches/*.patch`. Then commit the `patches/*.patch` files.
 
