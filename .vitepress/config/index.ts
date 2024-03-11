@@ -16,6 +16,9 @@ export default defineConfig({
     es,
   },
 
+  // https://github.com/vuejs/vitepress/issues/3508
+  base: process.env.BASE_PATH,
+
   // https://vitejs.dev/config/
   vite: {
     resolve: {
