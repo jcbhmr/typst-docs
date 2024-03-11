@@ -32,8 +32,8 @@ export default {
     const params: any[] = [];
     for (const t of languageTags) {
       params.push(
-        ...allPages[t].map(({ children, ...page }: any) => ({
-          relativeRoute: page.route.replace("/", "") + "index",
+        ...allPages[t].map(({ children, outline, ...page }: any) => ({
+          route: page.route.replace(/\/$/, "/index").replace("/", ""),
           page,
           base: base[t],
         })),

@@ -1,5 +1,5 @@
 <template>
-  <p>func</p>
+  <p>TODO: func</p>
 </template>
 
 <script setup lang="ts">
