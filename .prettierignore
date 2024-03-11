@@ -1,13 +1,9 @@
 # All the submodules
-/es/typst/
+/es/
 
 # https://vitepress.dev/
 **/.vitepress/cache
 **/.vitepress/dist
-
-# Generated pages data
-/*/pages.json
-/public/*/assets/
 
 # Shared Rust compilation spot
 /target/

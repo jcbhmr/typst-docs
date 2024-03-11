@@ -11,10 +11,10 @@
     "vue-tsc": "^1.8.27"
   },
   "scripts": {
-    "diff": "node ./scripts/diff.js",
-    "apply": "node ./scripts/apply.js",
+    "diff": "node run.js diff",
+    "apply": "node run.js apply",
     "build": "vitepress build",
-    "generate": "node ./scripts/generate.js",
+    "generate": "node run.js generate",
     "dev": "vitepress dev",
     "format": "prettier -w ."
   }

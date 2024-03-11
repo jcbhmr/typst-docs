@@ -1,25 +1,29 @@
 ---
 # https://vitepress.dev/reference/default-theme-home-page
 layout: home
-
-hero:
-  name: "My Awesome Project"
-  text: "A VitePress Site"
-  tagline: My great project tagline
-  actions:
-    - theme: brand
-      text: Markdown Examples
-      link: /markdown-examples
-    - theme: alt
-      text: API Examples
-      link: /api-examples
+pageClass: my-index-page
 
 features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: English
+    link: https://typst.app/docs
+    target: _self
+  - title: español
+    link: /es/
 ---
 
+<style>
+  .my-index-page .VPContent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .my-index-page .VPContent .VPLink .title {
+    font-size: 1.5em;
+    line-height: 1.46;
+  }
+  .my-index-page .VPContent .VPLink .details {
+    font-size: 1em;
+    line-height: 1.46;
+    color: inherit;
+  }
+</style>
