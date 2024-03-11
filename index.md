@@ -20,6 +20,7 @@ features:
   .my-index-page .VPContent .VPLink .title {
     font-size: 1.5em;
     line-height: 1.46;
+    min-width: fit-content;
   }
   .my-index-page .VPContent .VPLink .details {
     font-size: 1em;

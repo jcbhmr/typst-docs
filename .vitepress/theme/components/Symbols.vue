@@ -1,3 +1,3 @@
 <template>
-    <p>symbols</p>
+  <p>symbols</p>
 </template>

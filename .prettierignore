@@ -1,6 +1,10 @@
 # All the submodules
 /es/
 
+# Generated
+/pages.*.json
+/public/*/assets/
+
 # https://vitepress.dev/
 **/.vitepress/cache
 **/.vitepress/dist

@@ -5,7 +5,7 @@ const t = "es";
 
 const baseRoot = (process.env.BASE_URL || process.env.BASE_PATH || "/").replace(
   /\/?$/,
-  "/"
+  "/",
 );
 const base = `${baseRoot}${t}/`;
 const rootPages = JSON.parse(await readFile(`./pages.${t}.json`, "utf8"));

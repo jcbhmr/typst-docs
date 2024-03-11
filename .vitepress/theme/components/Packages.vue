@@ -1,3 +1,3 @@
 <template>
-    <p>packages</p>
+  <p>packages</p>
 </template>

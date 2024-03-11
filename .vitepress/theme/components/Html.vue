@@ -1,10 +1,10 @@
 <template>
-    <div v-html="$props.html"></div>
+  <div v-html="$props.html"></div>
 </template>
 
 <script setup lang="ts">
 defineProps<{
-  page: object,
-  html: string,
-}>()
+  page: object;
+  html: string;
+}>();
 </script>

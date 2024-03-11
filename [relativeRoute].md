@@ -1,5 +1,4 @@
 <script setup>
-import Category from ".vitepress/theme/components/Category.vue"
 import Func from ".vitepress/theme/components/Func.vue"
 import Group from ".vitepress/theme/components/Group.vue"
 import Html from ".vitepress/theme/components/Html.vue"
